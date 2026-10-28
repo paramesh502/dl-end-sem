@@ -1,0 +1,80 @@
+============================================================
+2-D Spectrogram Autoencoder — OPSSAT-AD
+Team 05, Card I1, Week 3
+============================================================
+
+--- Model ---
+Architecture      : SpectrogramAutoencoder (2-D Conv)
+Input shape       : (1, 33, 7)  — 1 channel, 33 freq bins, 7 time frames
+Trainable params  : 18,833
+Spectrogram       : nperseg=64, noverlap=32, nfft=64
+
+--- Split ---
+Nominal fitting   : 1019 fragments
+Nominal dev       : 254 fragments
+Test nominal      : 416 fragments
+Test anomalous    : 113 fragments
+
+--- Preprocessing ---
+Resampled to      : 256 samples per fragment
+Training mean     : 0.129194
+Training std      : 0.285037
+Spectrogram       : log1p(magnitude), shape (33, 7)
+
+--- Training ---
+Seed              : 22
+Stopped by        : completed all epochs
+Epochs completed  : 30
+Best val loss     : 0.000042
+Total elapsed     : 20.79s (0.35 min)
+
+--- Loss history ---
+  Epoch 01: train=0.010352  val=0.002882
+  Epoch 02: train=0.002219  val=0.001419
+  Epoch 03: train=0.001102  val=0.000832
+  Epoch 04: train=0.000677  val=0.000490
+  Epoch 05: train=0.000419  val=0.000364
+  Epoch 06: train=0.000305  val=0.000249
+  Epoch 07: train=0.000276  val=0.000233
+  Epoch 08: train=0.000280  val=0.000217
+  Epoch 09: train=0.000192  val=0.000159
+  Epoch 10: train=0.000143  val=0.000141
+  Epoch 11: train=0.000124  val=0.000125
+  Epoch 12: train=0.000109  val=0.000113
+  Epoch 13: train=0.000101  val=0.000105
+  Epoch 14: train=0.000091  val=0.000101
+  Epoch 15: train=0.000084  val=0.000091
+  Epoch 16: train=0.000078  val=0.000086
+  Epoch 17: train=0.000071  val=0.000078
+  Epoch 18: train=0.000069  val=0.000083
+  Epoch 19: train=0.000062  val=0.000067
+  Epoch 20: train=0.000057  val=0.000064
+  Epoch 21: train=0.000053  val=0.000060
+  Epoch 22: train=0.000051  val=0.000056
+  Epoch 23: train=0.000048  val=0.000054
+  Epoch 24: train=0.000064  val=0.000206
+  Epoch 25: train=0.000161  val=0.000069
+  Epoch 26: train=0.000053  val=0.000059
+  Epoch 27: train=0.000045  val=0.000047
+  Epoch 28: train=0.000037  val=0.000043
+  Epoch 29: train=0.000036  val=0.000042
+  Epoch 30: train=0.000034  val=0.000045
+
+--- Calibration ---
+Threshold         : 0.000355
+Dev alarm rate    : 3/254 = 1.18%
+
+--- Test results ---
+Precision         : 0.8889
+Recall            : 0.0708
+F1 score          : 0.1311
+Support           : 113 anom / 416 nom
+
+--- Comparison (test F1) ---
+  Isolation Forest  : 0.0164
+  PCA recon. error  : 0.0630
+  Trivial detector  : 0.0164
+  1-D Autoencoder   : 0.1417
+  2-D Autoencoder   : 0.1311
+
+No test labels or test metrics were used for threshold selection.

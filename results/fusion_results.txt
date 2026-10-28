@@ -1,0 +1,57 @@
+============================================================
+Fusion (1-D + 2-D Autoencoder) — OPSSAT-AD
+Team 05, Card I1, Week 4
+============================================================
+
+--- Fusion method ---
+Strategy          : Score-level equal-weight average (Annex D0)
+Formula           : fused_score = 0.5 * std_1d + 0.5 * std_2d
+Score norm        : Median / IQR, fitted on nominal dev scores only
+
+--- Models ---
+1-D model         : /Users/paramesh502/Documents/22AIE304_Team05/results/1d_autoencoder.pt
+  Architecture    : Conv1dAutoencoder
+  Params          : 6,353
+2-D model         : /Users/paramesh502/Documents/22AIE304_Team05/results/2d_autoencoder.pt
+  Architecture    : SpectrogramAutoencoder
+  Params          : 18,833
+
+--- Split ---
+Nominal fitting   : 1019 fragments
+Nominal dev       : 254 fragments
+Test nominal      : 416 fragments
+Test anomalous    : 113 fragments
+
+--- Preprocessing ---
+Resampled to      : 256 samples per fragment
+Training mean     : 0.129194
+Training std      : 0.285037
+2-D spectrogram   : nperseg=64, noverlap=32, nfft=64, log1p(magnitude)
+
+--- Score normalisation (dev only) ---
+1-D median        : 0.000005
+1-D IQR           : 0.000141
+2-D median        : 0.000000
+2-D IQR           : 0.000067
+
+--- Calibration (99th pctile of fused dev scores) ---
+Threshold         : 3.977751
+Dev alarm rate    : 3/254 = 1.18% (false-alarm rate on nominal)
+NOTE: Dev is nominal-only. F1 undefined on dev.
+
+--- Test results ---
+Precision         : 0.8000
+Recall            : 0.1062
+F1 score          : 0.1875
+Support           : 113 anomalous / 416 nominal
+
+--- Comparison table (test F1) ---
+  Isolation Forest  : 0.0164
+  PCA recon. error  : 0.0630
+  Trivial detector  : 0.0164
+  1-D Autoencoder   : 0.1417  (no-attention ablation)
+  2-D Autoencoder   : 0.1311
+  Attention AE      : 0.0480
+  Fusion (1D+2D)    : 0.1875   <- this model
+
+No test labels or test metrics were used for threshold selection.

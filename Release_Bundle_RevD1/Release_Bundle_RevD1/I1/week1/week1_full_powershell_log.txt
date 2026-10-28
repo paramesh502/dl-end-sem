@@ -1,0 +1,871 @@
+Windows PowerShell
+Copyright (C) Microsoft Corporation. All rights reserved.
+
+PS C:\Users\hema3> Get-ChildItem *.zip
+PS C:\Users\hema3> ^C
+PS C:\Users\hema3> cd Downloads
+PS C:\Users\hema3\Downloads> Get-ChildItem *.zip
+
+
+    Directory: C:\Users\hema3\Downloads
+
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a----        21-07-2026     15:24         540307 Amrita-College-Website (1).zip
+-a----        31-03-2026     21:34       65529677 archive (1).zip
+-a----        07-04-2026     12:12             22 archive (2).zip
+-a----        31-03-2026     21:37        1568866 archive.zip
+-a----        06-03-2026     09:31         426272 BL.SC.U4AIE24018.zip
+-a----        10-11-2025     11:18         293708 BL.SC.U4AIE24018_ThreeBranchNetwork.zip
+-a----        19-06-2026     15:24         175568 creatoriq-ai-main.zip
+-a----        10-09-2026     21:29          63667 FAI-FARM-Agent-Based-Smart-Farming-System-main.zip
+-a----        17-11-2025     19:13          57114 FAI_FARM-main.zip
+-a----        09-06-2026     18:31      104350930 hemalatha-reddy-portfolio.zip
+-a----        05-05-2025     19:22         618769 lab 12 and 13 .zip
+-a----        17-07-2025     19:47          20103 library-management-system-main.zip
+-a----        14-03-2025     08:52         826068 nand2tetris.zip
+-a----        24-04-2025     12:09          46522 Nand2Tetris_Game_Modified.zip
+-a----        06-02-2026     11:51        9063023 ncbi_dataset.zip
+-a----        24-11-2025     09:42           3945 Organization_Project.zip
+-a----        17-07-2025     20:07          14782 productivity-manager-main.zip
+-a----        17-08-2025     10:31           3323 pyt-files.zip
+-a----        06-08-2025     14:35        7435010 Regarding Lab manual for Wireshark.zip
+-a----        30-09-2026     22:01       11900797 Release_Bundle_RevD1.zip
+-a----        31-08-2026     21:39           8606 tomcat.zip
+-a----        17-04-2025     08:43          58966 UID Project.zip
+-a----        20-07-2026     21:17     3105763999 WINDOWS.X64_193000_db_home.zip
+-a----        17-10-2025     11:35         525432 wireshark-traces.zip
+-a----        06-12-2025     14:04         573346 Word+Template.zip
+
+
+PS C:\Users\hema3\Downloads> Get-FileHash .\Release_Bundle_RevD1.zip -Algorithm SHA256
+
+Algorithm       Hash                                                                   Path
+---------       ----                                                                   ----
+SHA256          522127833D726863F3AA0E907BA838B09C14DDEC6DA2DDA5961E187146B0CFD2       C:\Users\hema3\Downloads\Rele...
+
+
+PS C:\Users\hema3\Downloads> cd .\Release_Bundle_RevD1
+PS C:\Users\hema3\Downloads\Release_Bundle_RevD1> Get-Content SHA256SUMS.txt | % { $h,$f = $_ -split '\s+',2; if ((Get-FileHash $f -Algorithm SHA256).Hash -ne $h) {"FAIL $f"} }
+Get-Content : Cannot find path 'C:\Users\hema3\Downloads\Release_Bundle_RevD1\SHA256SUMS.txt' because it does not
+exist.
+At line:1 char:1
++ Get-Content SHA256SUMS.txt | % { $h,$f = $_ -split '\s+',2; if ((Get- ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (C:\Users\hema3\...\SHA256SUMS.txt:String) [Get-Content], ItemNotFoundEx
+   ception
+    + FullyQualifiedErrorId : PathNotFound,Microsoft.PowerShell.Commands.GetContentCommand
+
+PS C:\Users\hema3\Downloads\Release_Bundle_RevD1> Get-ChildItem
+
+
+    Directory: C:\Users\hema3\Downloads\Release_Bundle_RevD1
+
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d-----        30-09-2026     21:46                Release_Bundle_RevD1
+
+
+PS C:\Users\hema3\Downloads\Release_Bundle_RevD1> cd .\Release_Bundle_RevD1
+PS C:\Users\hema3\Downloads\Release_Bundle_RevD1\Release_Bundle_RevD1> Get-ChildItem
+
+
+    Directory: C:\Users\hema3\Downloads\Release_Bundle_RevD1\Release_Bundle_RevD1
+
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d-----        30-09-2026     21:46                docs
+d-----        30-09-2026     21:46                I1
+d-----        30-09-2026     21:46                I3
+d-----        30-09-2026     21:46                I4-S
+d-----        30-09-2026     21:46                I5
+d-----        30-09-2026     21:46                I6
+d-----        30-09-2026     21:46                TrackA
+d-----        30-09-2026     21:46                TrackB
+d-----        30-09-2026     21:46                TrackC
+d-----        30-09-2026     21:46                TrackE
+-a----        30-09-2026     21:46           6374 README.md
+-a----        30-09-2026     21:46           3101 SHA256SUMS.txt
+
+
+PS C:\Users\hema3\Downloads\Release_Bundle_RevD1\Release_Bundle_RevD1> Get-Content SHA256SUMS.txt | % { $h,$f = $_ -split '\s+',2; if ((Get-FileHash $f -Algorithm SHA256).Hash -ne $h) {"FAIL $f"} }
+PS C:\Users\hema3\Downloads\Release_Bundle_RevD1\Release_Bundle_RevD1> Get-ChildItem
+
+
+    Directory: C:\Users\hema3\Downloads\Release_Bundle_RevD1\Release_Bundle_RevD1
+
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d-----        30-09-2026     21:46                docs
+d-----        30-09-2026     21:46                I1
+d-----        30-09-2026     21:46                I3
+d-----        30-09-2026     21:46                I4-S
+d-----        30-09-2026     21:46                I5
+d-----        30-09-2026     21:46                I6
+d-----        30-09-2026     21:46                TrackA
+d-----        30-09-2026     21:46                TrackB
+d-----        30-09-2026     21:46                TrackC
+d-----        30-09-2026     21:46                TrackE
+-a----        30-09-2026     21:46           6374 README.md
+-a----        30-09-2026     21:46           3101 SHA256SUMS.txt
+
+
+PS C:\Users\hema3\Downloads\Release_Bundle_RevD1\Release_Bundle_RevD1> cd .\I1
+PS C:\Users\hema3\Downloads\Release_Bundle_RevD1\Release_Bundle_RevD1\I1> Get-ChildItem
+
+
+    Directory: C:\Users\hema3\Downloads\Release_Bundle_RevD1\Release_Bundle_RevD1\I1
+
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a----        30-09-2026     21:46           3956 labeled_anomalies.csv
+-a----        30-09-2026     21:46           3455 OPSSAT_nominal_dev_segments.csv
+-a----        30-09-2026     21:46         996288 SMAP_MSL_test_C-1.npy
+-a----        30-09-2026     21:46        1701128 SMAP_MSL_test_P-1.npy
+-a----        30-09-2026     21:46         949648 SMAP_MSL_train_C-1.npy
+-a----        30-09-2026     21:46         574528 SMAP_MSL_train_P-1.npy
+
+
+PS C:\Users\hema3\Downloads\Release_Bundle_RevD1\Release_Bundle_RevD1\I1> Get-Content .\OPSSAT_nominal_dev_segments.csv
+segment,channel
+1912,CADC0872
+886,CADC0892
+1292,CADC0873
+928,CADC0892
+1337,CADC0873
+983,CADC0892
+1608,CADC0888
+1048,CADC0888
+462,CADC0873
+164,CADC0872
+1971,CADC0872
+26,CADC0872
+1315,CADC0873
+846,CADC0892
+461,CADC0873
+231,CADC0892
+1230,CADC0873
+1375,CADC0873
+1532,CADC0888
+1236,CADC0873
+1350,CADC0873
+1693,CADC0888
+2064,CADC0872
+2067,CADC0872
+794,CADC0874
+10,CADC0872
+1228,CADC0873
+98,CADC0872
+714,CADC0874
+1084,CADC0888
+1733,CADC0894
+563,CADC0873
+1981,CADC0872
+1191,CADC0873
+505,CADC0873
+1216,CADC0873
+900,CADC0892
+1661,CADC0888
+1515,CADC0873
+180,CADC0872
+580,CADC0873
+411,CADC0884
+1553,CADC0888
+984,CADC0892
+1317,CADC0873
+1992,CADC0872
+1463,CADC0873
+1096,CADC0894
+872,CADC0892
+528,CADC0873
+1491,CADC0873
+1110,CADC0894
+1100,CADC0894
+924,CADC0892
+1031,CADC0873
+967,CADC0892
+1439,CADC0873
+1256,CADC0873
+782,CADC0874
+1847,CADC0872
+331,CADC0874
+1101,CADC0894
+1379,CADC0873
+396,CADC0884
+821,CADC0892
+216,CADC0872
+101,CADC0872
+1454,CADC0873
+1807,CADC0872
+1846,CADC0872
+1680,CADC0888
+487,CADC0873
+1785,CADC0894
+1368,CADC0873
+783,CADC0874
+38,CADC0872
+2046,CADC0872
+771,CADC0874
+1227,CADC0873
+1425,CADC0873
+1222,CADC0873
+1363,CADC0873
+1075,CADC0888
+1104,CADC0894
+1722,CADC0890
+1966,CADC0872
+58,CADC0872
+1218,CADC0873
+1940,CADC0872
+936,CADC0892
+2030,CADC0872
+1631,CADC0888
+1328,CADC0873
+374,CADC0884
+931,CADC0892
+2025,CADC0872
+1889,CADC0872
+873,CADC0892
+1674,CADC0888
+1081,CADC0888
+1052,CADC0888
+1873,CADC0872
+79,CADC0872
+1078,CADC0888
+1783,CADC0894
+589,CADC0873
+1998,CADC0872
+1827,CADC0872
+1583,CADC0888
+699,CADC0884
+1372,CADC0873
+588,CADC0873
+1691,CADC0888
+698,CADC0884
+1881,CADC0872
+1777,CADC0894
+2100,CADC0872
+490,CADC0873
+281,CADC0874
+1340,CADC0873
+612,CADC0873
+1175,CADC0873
+1442,CADC0873
+1397,CADC0873
+199,CADC0872
+428,CADC0884
+742,CADC0874
+1244,CADC0873
+538,CADC0873
+1769,CADC0894
+730,CADC0874
+1125,CADC0894
+1424,CADC0873
+1428,CADC0873
+1237,CADC0873
+1303,CADC0873
+898,CADC0892
+709,CADC0884
+2101,CADC0872
+1320,CADC0873
+1404,CADC0873
+544,CADC0873
+1730,CADC0894
+1689,CADC0888
+1098,CADC0894
+825,CADC0892
+1786,CADC0894
+1862,CADC0872
+705,CADC0884
+802,CADC0874
+349,CADC0884
+1902,CADC0872
+1269,CADC0873
+807,CADC0874
+2020,CADC0872
+200,CADC0872
+123,CADC0872
+1142,CADC0894
+1648,CADC0888
+234,CADC0892
+519,CADC0873
+1161,CADC0894
+527,CADC0873
+993,CADC0892
+1855,CADC0872
+285,CADC0874
+1989,CADC0872
+1701,CADC0888
+69,CADC0872
+1469,CADC0873
+334,CADC0884
+557,CADC0873
+1285,CADC0873
+1879,CADC0872
+791,CADC0874
+1103,CADC0894
+1300,CADC0873
+795,CADC0874
+1124,CADC0894
+1092,CADC0888
+2110,CADC0872
+785,CADC0874
+660,CADC0873
+338,CADC0884
+511,CADC0873
+1797,CADC0872
+262,CADC0874
+1436,CADC0873
+1839,CADC0872
+1002,CADC0892
+2009,CADC0872
+703,CADC0884
+933,CADC0892
+1268,CADC0873
+1943,CADC0872
+377,CADC0884
+341,CADC0884
+1504,CADC0873
+1027,CADC0873
+1514,CADC0873
+1576,CADC0888
+1143,CADC0894
+1545,CADC0888
+32,CADC0872
+1387,CADC0873
+509,CADC0873
+1602,CADC0888
+1534,CADC0888
+1841,CADC0872
+413,CADC0884
+1362,CADC0873
+2078,CADC0872
+408,CADC0884
+1179,CADC0873
+1907,CADC0872
+367,CADC0884
+1354,CADC0873
+834,CADC0892
+6,CADC0872
+1051,CADC0888
+460,CADC0873
+599,CADC0873
+430,CADC0884
+1741,CADC0894
+183,CADC0872
+222,CADC0892
+1813,CADC0872
+720,CADC0874
+1251,CADC0873
+1129,CADC0894
+2051,CADC0872
+376,CADC0884
+470,CADC0873
+1406,CADC0873
+445,CADC0873
+1570,CADC0888
+1517,CADC0873
+725,CADC0874
+676,CADC0884
+1721,CADC0890
+47,CADC0872
+1492,CADC0873
+1366,CADC0873
+1155,CADC0894
+45,CADC0872
+1790,CADC0894
+2097,CADC0872
+663,CADC0884
+1607,CADC0888
+1380,CADC0873
+1926,CADC0872
+39,CADC0872
+1745,CADC0894
+423,CADC0884
+PS C:\Users\hema3\Downloads\Release_Bundle_RevD1\Release_Bundle_RevD1\I1> Import-Csv .\OPSSAT_nominal_dev_segments.csv | Measure-Object
+
+
+Count    : 254
+Average  :
+Sum      :
+Maximum  :
+Minimum  :
+Property :
+
+
+
+PS C:\Users\hema3\Downloads\Release_Bundle_RevD1\Release_Bundle_RevD1\I1> Import-Csv .\OPSSAT_nominal_dev_segments.csv | Group-Object channel
+
+Count Name                      Group
+----- ----                      -----
+   59 CADC0872                  {@{segment=1912; channel=CADC0872}, @{segment=164; channel=CADC0872}, @{segment=1971...
+   22 CADC0892                  {@{segment=886; channel=CADC0892}, @{segment=928; channel=CADC0892}, @{segment=983; ...
+   80 CADC0873                  {@{segment=1292; channel=CADC0873}, @{segment=1337; channel=CADC0873}, @{segment=462...
+   27 CADC0888                  {@{segment=1608; channel=CADC0888}, @{segment=1048; channel=CADC0888}, @{segment=153...
+   18 CADC0874                  {@{segment=794; channel=CADC0874}, @{segment=714; channel=CADC0874}, @{segment=782; ...
+   24 CADC0894                  {@{segment=1733; channel=CADC0894}, @{segment=1096; channel=CADC0894}, @{segment=111...
+   22 CADC0884                  {@{segment=411; channel=CADC0884}, @{segment=396; channel=CADC0884}, @{segment=374; ...
+    2 CADC0890                  {@{segment=1722; channel=CADC0890}, @{segment=1721; channel=CADC0890}}
+
+
+PS C:\Users\hema3\Downloads\Release_Bundle_RevD1\Release_Bundle_RevD1\I1> Get-ChildItem -Recurse -File | Select-Object FullName, Length
+
+FullName                                                                                               Length
+--------                                                                                               ------
+C:\Users\hema3\Downloads\Release_Bundle_RevD1\Release_Bundle_RevD1\I1\labeled_anomalies.csv              3956
+C:\Users\hema3\Downloads\Release_Bundle_RevD1\Release_Bundle_RevD1\I1\OPSSAT_nominal_dev_segments.csv    3455
+C:\Users\hema3\Downloads\Release_Bundle_RevD1\Release_Bundle_RevD1\I1\SMAP_MSL_test_C-1.npy            996288
+C:\Users\hema3\Downloads\Release_Bundle_RevD1\Release_Bundle_RevD1\I1\SMAP_MSL_test_P-1.npy           1701128
+C:\Users\hema3\Downloads\Release_Bundle_RevD1\Release_Bundle_RevD1\I1\SMAP_MSL_train_C-1.npy           949648
+C:\Users\hema3\Downloads\Release_Bundle_RevD1\Release_Bundle_RevD1\I1\SMAP_MSL_train_P-1.npy           574528
+
+
+PS C:\Users\hema3\Downloads\Release_Bundle_RevD1\Release_Bundle_RevD1\I1> (Import-Csv .\segments.csv | Measure-Object).Count
+Import-Csv : Could not find file 'C:\Users\hema3\Downloads\Release_Bundle_RevD1\Release_Bundle_RevD1\I1\segments.csv'.
+At line:1 char:2
++ (Import-Csv .\segments.csv | Measure-Object).Count
++  ~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : OpenError: (:) [Import-Csv], FileNotFoundException
+    + FullyQualifiedErrorId : FileOpenFailure,Microsoft.PowerShell.Commands.ImportCsvCommand
+
+PS C:\Users\hema3\Downloads\Release_Bundle_RevD1\Release_Bundle_RevD1\I1> Get-ChildItem "C:\Users\hema3\Downloads" -Filter "segments.csv" -Recurse
+PS C:\Users\hema3\Downloads\Release_Bundle_RevD1\Release_Bundle_RevD1\I1> (Import-Csv .\segments.csv | Measure-Object).Count
+Import-Csv : Could not find file 'C:\Users\hema3\Downloads\Release_Bundle_RevD1\Release_Bundle_RevD1\I1\segments.csv'.
+At line:1 char:2
++ (Import-Csv .\segments.csv | Measure-Object).Count
++  ~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : OpenError: (:) [Import-Csv], FileNotFoundException
+    + FullyQualifiedErrorId : FileOpenFailure,Microsoft.PowerShell.Commands.ImportCsvCommand
+
+PS C:\Users\hema3\Downloads\Release_Bundle_RevD1\Release_Bundle_RevD1\I1> Get-ChildItem
+
+
+    Directory: C:\Users\hema3\Downloads\Release_Bundle_RevD1\Release_Bundle_RevD1\I1
+
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a----        30-09-2026     22:54         507568 dataset.csv.csv
+-a----        30-09-2026     22:54           3956 labeled_anomalies.csv
+-a----        30-09-2026     22:54           3455 OPSSAT_nominal_dev_segments.csv
+-a----        30-09-2026     22:54       17970946 segments.csv.csv
+-a----        30-09-2026     22:54         996288 SMAP_MSL_test_C-1.npy
+-a----        30-09-2026     22:54        1701128 SMAP_MSL_test_P-1.npy
+-a----        30-09-2026     22:54         949648 SMAP_MSL_train_C-1.npy
+-a----        30-09-2026     22:54         574528 SMAP_MSL_train_P-1.npy
+
+
+PS C:\Users\hema3\Downloads\Release_Bundle_RevD1\Release_Bundle_RevD1\I1> Rename-Item .\segments.csv.csv segments.csv
+PS C:\Users\hema3\Downloads\Release_Bundle_RevD1\Release_Bundle_RevD1\I1> Rename-Item .\dataset.csv.csv dataset.csv
+PS C:\Users\hema3\Downloads\Release_Bundle_RevD1\Release_Bundle_RevD1\I1> Get-ChildItem
+
+
+    Directory: C:\Users\hema3\Downloads\Release_Bundle_RevD1\Release_Bundle_RevD1\I1
+
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a----        30-09-2026     22:54         507568 dataset.csv
+-a----        30-09-2026     22:54           3956 labeled_anomalies.csv
+-a----        30-09-2026     22:54           3455 OPSSAT_nominal_dev_segments.csv
+-a----        30-09-2026     22:54       17970946 segments.csv
+-a----        30-09-2026     22:54         996288 SMAP_MSL_test_C-1.npy
+-a----        30-09-2026     22:54        1701128 SMAP_MSL_test_P-1.npy
+-a----        30-09-2026     22:54         949648 SMAP_MSL_train_C-1.npy
+-a----        30-09-2026     22:54         574528 SMAP_MSL_train_P-1.npy
+
+
+PS C:\Users\hema3\Downloads\Release_Bundle_RevD1\Release_Bundle_RevD1\I1> (Import-Csv .\segments.csv | Measure-Object).Count
+303493
+PS C:\Users\hema3\Downloads\Release_Bundle_RevD1\Release_Bundle_RevD1\I1> Import-Csv .\segments.csv | Select-Object -First 5
+
+
+channel   : CADC0872
+timestamp : 2022-06-01T23:42:54.000Z
+value     : -2.1487e-05
+label     : anomaly
+sampling  : 1
+anomaly   : 1
+segment   : 1
+train     : 1
+
+channel   : CADC0872
+timestamp : 2022-06-01T23:42:55.000Z
+value     : -2.05077e-05
+label     : anomaly
+sampling  : 1
+anomaly   : 1
+segment   : 1
+train     : 1
+
+channel   : CADC0872
+timestamp : 2022-06-01T23:42:56.000Z
+value     : -2.10633e-05
+label     : anomaly
+sampling  : 1
+anomaly   : 1
+segment   : 1
+train     : 1
+
+channel   : CADC0872
+timestamp : 2022-06-01T23:42:57.000Z
+value     : -2.14833e-05
+label     : anomaly
+sampling  : 1
+anomaly   : 1
+segment   : 1
+train     : 1
+
+channel   : CADC0872
+timestamp : 2022-06-01T23:42:58.000Z
+value     : -2.14833e-05
+label     : anomaly
+sampling  : 1
+anomaly   : 1
+segment   : 1
+train     : 1
+
+
+
+PS C:\Users\hema3\Downloads\Release_Bundle_RevD1\Release_Bundle_RevD1\I1> (Import-Csv .\segments.csv | Select-Object -ExpandProperty segment | Sort-Object -Unique | Measure-Object).Count
+2123
+PS C:\Users\hema3\Downloads\Release_Bundle_RevD1\Release_Bundle_RevD1\I1> Import-Csv .\segments.csv | Group-Object train
+
+Count Name                      Group
+----- ----                      -----
+...78 1                         {@{channel=CADC0872; timestamp=2022-06-01T23:42:54.000Z; value=-2.1487e-05; label=anomaly; sampling=1; anomaly=1; segmen...
+78315 0                         {@{channel=CADC0872; timestamp=2022-06-02T00:10:03.000Z; value=-2.48125e-05; label=a3; sampling=1; anomaly=0; segment=5;...
+
+
+PS C:\Users\hema3\Downloads\Release_Bundle_RevD1\Release_Bundle_RevD1\I1> Import-Csv .\segments.csv | Group-Object train | ForEach-Object {
+>>     $count = ($_.Group | Select-Object -ExpandProperty segment | Sort-Object -Unique | Measure-Object).Count
+>>     "train=$($_.Name)  unique segments=$count"
+>> }
+train=1  unique segments=1594
+train=0  unique segments=529
+PS C:\Users\hema3\Downloads\Release_Bundle_RevD1\Release_Bundle_RevD1\I1> Import-Csv .\segments.csv | Where-Object {$_.train -eq "1" -and $_.anomaly -eq "0"} | Select-Object -ExpandProperty segment | Sort-Object -Unique | Measure-Object
+
+
+Count    : 1273
+Average  :
+Sum      :
+Maximum  :
+Minimum  :
+Property :
+
+
+
+PS C:\Users\hema3\Downloads\Release_Bundle_RevD1\Release_Bundle_RevD1\I1> $train = Import-Csv .\segments.csv | Where-Object {$_.train -eq "1" -and $_.anomaly -eq "0"} | Select-Object -ExpandProperty segment -Unique
+PS C:\Users\hema3\Downloads\Release_Bundle_RevD1\Release_Bundle_RevD1\I1> $dev = Import-Csv .\OPSSAT_nominal_dev_segments.csv | Select-Object -ExpandProperty segment
+PS C:\Users\hema3\Downloads\Release_Bundle_RevD1\Release_Bundle_RevD1\I1>
+PS C:\Users\hema3\Downloads\Release_Bundle_RevD1\Release_Bundle_RevD1\I1> $dev | Where-Object {$train -contains $_} | Measure-Object
+
+
+Count    : 254
+Average  :
+Sum      :
+Maximum  :
+Minimum  :
+Property :
+
+
+
+PS C:\Users\hema3\Downloads\Release_Bundle_RevD1\Release_Bundle_RevD1\I1> 1273 - 254
+1019
+PS C:\Users\hema3\Downloads\Release_Bundle_RevD1\Release_Bundle_RevD1\I1> Import-Csv .\segments.csv |
+>> Group-Object segment |
+>> ForEach-Object {
+>>     [PSCustomObject]@{
+>>         Segment = $_.Name
+>>         Length = $_.Count
+>>     }
+>> } |
+>> Measure-Object Length -Minimum -Maximum -Average
+
+
+Count    : 2123
+Average  : 142.954780970325
+Sum      :
+Maximum  : 1040
+Minimum  : 8
+Property : Length
+
+
+
+PS C:\Users\hema3\Downloads\Release_Bundle_RevD1\Release_Bundle_RevD1\I1> Import-Csv .\segments.csv |
+>> Group-Object segment |
+>> Where-Object {$_.Count -lt 256} |
+>> Measure-Object
+
+
+Count    : 1748
+Average  :
+Sum      :
+Maximum  :
+Minimum  :
+Property :
+
+
+
+PS C:\Users\hema3\Downloads\Release_Bundle_RevD1\Release_Bundle_RevD1\I1> Import-Csv .\segments.csv |
+>> Group-Object segment |
+>> Where-Object {$_.Count -ge 256} |
+>> Measure-Object
+
+
+Count    : 375
+Average  :
+Sum      :
+Maximum  :
+Minimum  :
+Property :
+
+
+
+PS C:\Users\hema3\Downloads\Release_Bundle_RevD1\Release_Bundle_RevD1\I1> Get-CimInstance Win32_ComputerSystem | Select-Object Manufacturer, Model, @{N="RAM_GB";E={[math]::Round($_.TotalPhysicalMemory/1GB,2)}}
+
+Manufacturer Model            RAM_GB
+------------ -----            ------
+Dell Inc.    Inspiron 15 3530  15.69
+
+
+PS C:\Users\hema3\Downloads\Release_Bundle_RevD1\Release_Bundle_RevD1\I1> Get-CimInstance Win32_Processor | Select-Object Name, NumberOfCores, NumberOfLogicalProcessors
+
+Name                                NumberOfCores NumberOfLogicalProcessors
+----                                ------------- -------------------------
+13th Gen Intel(R) Core(TM) i7-1355U            10                        12
+
+
+PS C:\Users\hema3\Downloads\Release_Bundle_RevD1\Release_Bundle_RevD1\I1> python --version
+Python 3.13.5
+PS C:\Users\hema3\Downloads\Release_Bundle_RevD1\Release_Bundle_RevD1\I1> python -c "import torch; print(torch.__version__)"
+2.8.0+cpu
+PS C:\Users\hema3\Downloads\Release_Bundle_RevD1\Release_Bundle_RevD1\I1> python -c "import numpy; print(numpy.__version__)"
+2.3.1
+PS C:\Users\hema3\Downloads\Release_Bundle_RevD1\Release_Bundle_RevD1\I1> python -c "import pandas; print(pandas.__version__)"
+2.3.1
+PS C:\Users\hema3\Downloads\Release_Bundle_RevD1\Release_Bundle_RevD1\I1> python -c "import scipy; print(scipy.__version__)"
+1.16.0
+PS C:\Users\hema3\Downloads\Release_Bundle_RevD1\Release_Bundle_RevD1\I1> python -c "import matplotlib; print(matplotlib.__version__)"
+3.10.3
+PS C:\Users\hema3\Downloads\Release_Bundle_RevD1\Release_Bundle_RevD1\I1> mkdir .\week1
+
+
+    Directory: C:\Users\hema3\Downloads\Release_Bundle_RevD1\Release_Bundle_RevD1\I1
+
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d-----        30-09-2026     23:19                week1
+
+
+PS C:\Users\hema3\Downloads\Release_Bundle_RevD1\Release_Bundle_RevD1\I1> cd .\week1
+PS C:\Users\hema3\Downloads\Release_Bundle_RevD1\Release_Bundle_RevD1\I1\week1> notepad train.py
+PS C:\Users\hema3\Downloads\Release_Bundle_RevD1\Release_Bundle_RevD1\I1\week1> python train.py
+Loading OPSSAT data...
+Nominal fitting segments: 1019
+Nominal development segments: 254
+Preparing fitting data...
+Preparing development data...
+Train shape: (1019, 256)
+Validation shape: (254, 256)
+Spectrogram shape: (1019, 33, 7)
+Trainable parameters: 18833
+
+========================================
+STARTING TIMED WEEK-1 RUN
+========================================
+CPU threads: 6
+DataLoader workers: 0
+Maximum epochs: 30
+Maximum elapsed time: 30 minutes
+
+Epoch 01 | Train Loss: 0.009989 | Val Loss: 0.003266 | Elapsed: 0.01 min
+Epoch 02 | Train Loss: 0.002406 | Val Loss: 0.001484 | Elapsed: 0.03 min
+Epoch 03 | Train Loss: 0.001151 | Val Loss: 0.000846 | Elapsed: 0.04 min
+Epoch 04 | Train Loss: 0.000665 | Val Loss: 0.000480 | Elapsed: 0.05 min
+Epoch 05 | Train Loss: 0.000411 | Val Loss: 0.000327 | Elapsed: 0.06 min
+Epoch 06 | Train Loss: 0.000292 | Val Loss: 0.000253 | Elapsed: 0.07 min
+Epoch 07 | Train Loss: 0.000248 | Val Loss: 0.000279 | Elapsed: 0.08 min
+Epoch 08 | Train Loss: 0.000196 | Val Loss: 0.000180 | Elapsed: 0.10 min
+Epoch 09 | Train Loss: 0.000142 | Val Loss: 0.000142 | Elapsed: 0.11 min
+Epoch 10 | Train Loss: 0.000124 | Val Loss: 0.000135 | Elapsed: 0.12 min
+Epoch 11 | Train Loss: 0.000105 | Val Loss: 0.000124 | Elapsed: 0.13 min
+Epoch 12 | Train Loss: 0.000095 | Val Loss: 0.000106 | Elapsed: 0.14 min
+Epoch 13 | Train Loss: 0.000090 | Val Loss: 0.000104 | Elapsed: 0.15 min
+Epoch 14 | Train Loss: 0.000089 | Val Loss: 0.000110 | Elapsed: 0.17 min
+Epoch 15 | Train Loss: 0.000197 | Val Loss: 0.000112 | Elapsed: 0.18 min
+Epoch 16 | Train Loss: 0.000095 | Val Loss: 0.000093 | Elapsed: 0.19 min
+Epoch 17 | Train Loss: 0.000074 | Val Loss: 0.000084 | Elapsed: 0.20 min
+Epoch 18 | Train Loss: 0.000066 | Val Loss: 0.000077 | Elapsed: 0.21 min
+Epoch 19 | Train Loss: 0.000063 | Val Loss: 0.000076 | Elapsed: 0.22 min
+Epoch 20 | Train Loss: 0.000060 | Val Loss: 0.000070 | Elapsed: 0.24 min
+Epoch 21 | Train Loss: 0.000058 | Val Loss: 0.000071 | Elapsed: 0.25 min
+Epoch 22 | Train Loss: 0.000056 | Val Loss: 0.000064 | Elapsed: 0.26 min
+Epoch 23 | Train Loss: 0.000055 | Val Loss: 0.000064 | Elapsed: 0.28 min
+Epoch 24 | Train Loss: 0.000050 | Val Loss: 0.000059 | Elapsed: 0.29 min
+Epoch 25 | Train Loss: 0.000048 | Val Loss: 0.000058 | Elapsed: 0.31 min
+Epoch 26 | Train Loss: 0.000047 | Val Loss: 0.000056 | Elapsed: 0.32 min
+Epoch 27 | Train Loss: 0.000054 | Val Loss: 0.000070 | Elapsed: 0.33 min
+Epoch 28 | Train Loss: 0.000048 | Val Loss: 0.000063 | Elapsed: 0.34 min
+Epoch 29 | Train Loss: 0.000046 | Val Loss: 0.000060 | Elapsed: 0.35 min
+Epoch 30 | Train Loss: 0.000045 | Val Loss: 0.000105 | Elapsed: 0.36 min
+
+========================================
+TRAINING FINISHED
+========================================
+Elapsed training time: 21.80 seconds
+Aggregate main-process CPU time: 58.45 seconds
+Best validation loss: 0.000056
+
+Starting timed unscored inference...
+Timed inference over validation-shaped data: 0.06 seconds
+
+IMPORTANT:
+No test labels or test metrics were used.
+Week-1 reference run complete.
+PS C:\Users\hema3\Downloads\Release_Bundle_RevD1\Release_Bundle_RevD1\I1\week1> Get-Process -Id $PID | Select-Object ProcessName, WorkingSet64, PeakWorkingSet64
+
+ProcessName WorkingSet64 PeakWorkingSet64
+----------- ------------ ----------------
+powershell     188293120        995913728
+
+
+PS C:\Users\hema3\Downloads\Release_Bundle_RevD1\Release_Bundle_RevD1\I1\week1> notepad train.py
+PS C:\Users\hema3\Downloads\Release_Bundle_RevD1\Release_Bundle_RevD1\I1\week1> python train.py
+Loading OPSSAT data...
+Nominal fitting segments: 1019
+Nominal development segments: 254
+Preparing fitting data...
+Preparing development data...
+Train shape: (1019, 256)
+Validation shape: (254, 256)
+Spectrogram shape: (1019, 33, 7)
+Trainable parameters: 18833
+
+========================================
+STARTING TIMED WEEK-1 RUN
+========================================
+CPU threads: 6
+DataLoader workers: 0
+Maximum epochs: 30
+Maximum elapsed time: 30 minutes
+
+Epoch 01 | Train Loss: 0.010515 | Val Loss: 0.003509 | Elapsed: 0.02 min
+Epoch 02 | Train Loss: 0.002605 | Val Loss: 0.001885 | Elapsed: 0.03 min
+Epoch 03 | Train Loss: 0.001465 | Val Loss: 0.001082 | Elapsed: 0.04 min
+Epoch 04 | Train Loss: 0.000900 | Val Loss: 0.000692 | Elapsed: 0.05 min
+Epoch 05 | Train Loss: 0.000559 | Val Loss: 0.000434 | Elapsed: 0.07 min
+Epoch 06 | Train Loss: 0.000370 | Val Loss: 0.000330 | Elapsed: 0.09 min
+Epoch 07 | Train Loss: 0.000289 | Val Loss: 0.000258 | Elapsed: 0.10 min
+Epoch 08 | Train Loss: 0.000229 | Val Loss: 0.000212 | Elapsed: 0.11 min
+Epoch 09 | Train Loss: 0.000180 | Val Loss: 0.000171 | Elapsed: 0.12 min
+Epoch 10 | Train Loss: 0.000146 | Val Loss: 0.000137 | Elapsed: 0.13 min
+Epoch 11 | Train Loss: 0.000120 | Val Loss: 0.000125 | Elapsed: 0.15 min
+Epoch 12 | Train Loss: 0.000109 | Val Loss: 0.000109 | Elapsed: 0.16 min
+Epoch 13 | Train Loss: 0.000093 | Val Loss: 0.000096 | Elapsed: 0.17 min
+Epoch 14 | Train Loss: 0.000084 | Val Loss: 0.000085 | Elapsed: 0.18 min
+Epoch 15 | Train Loss: 0.000076 | Val Loss: 0.000079 | Elapsed: 0.19 min
+Epoch 16 | Train Loss: 0.000072 | Val Loss: 0.000092 | Elapsed: 0.20 min
+Epoch 17 | Train Loss: 0.000074 | Val Loss: 0.000081 | Elapsed: 0.21 min
+Epoch 18 | Train Loss: 0.000067 | Val Loss: 0.000077 | Elapsed: 0.23 min
+Epoch 19 | Train Loss: 0.000072 | Val Loss: 0.000097 | Elapsed: 0.24 min
+Epoch 20 | Train Loss: 0.000071 | Val Loss: 0.000067 | Elapsed: 0.25 min
+Epoch 21 | Train Loss: 0.000053 | Val Loss: 0.000059 | Elapsed: 0.26 min
+Epoch 22 | Train Loss: 0.000064 | Val Loss: 0.000084 | Elapsed: 0.27 min
+Epoch 23 | Train Loss: 0.000061 | Val Loss: 0.000060 | Elapsed: 0.28 min
+Epoch 24 | Train Loss: 0.000058 | Val Loss: 0.000093 | Elapsed: 0.30 min
+Epoch 25 | Train Loss: 0.000057 | Val Loss: 0.000053 | Elapsed: 0.31 min
+Epoch 26 | Train Loss: 0.000043 | Val Loss: 0.000050 | Elapsed: 0.32 min
+Epoch 27 | Train Loss: 0.000043 | Val Loss: 0.000049 | Elapsed: 0.33 min
+Epoch 28 | Train Loss: 0.000040 | Val Loss: 0.000047 | Elapsed: 0.35 min
+Epoch 29 | Train Loss: 0.000039 | Val Loss: 0.000050 | Elapsed: 0.36 min
+Epoch 30 | Train Loss: 0.000040 | Val Loss: 0.000044 | Elapsed: 0.37 min
+
+========================================
+TRAINING FINISHED
+========================================
+Elapsed training time: 22.43 seconds
+Aggregate main-process CPU time: 60.58 seconds
+Best validation loss: 0.000044
+Peak Python working-set memory: 0.00 MB
+
+Starting timed unscored inference...
+Timed inference over validation-shaped data: 0.08 seconds
+
+IMPORTANT:
+No test labels or test metrics were used.
+Week-1 reference run complete.
+PS C:\Users\hema3\Downloads\Release_Bundle_RevD1\Release_Bundle_RevD1\I1\week1> notepad train.py
+PS C:\Users\hema3\Downloads\Release_Bundle_RevD1\Release_Bundle_RevD1\I1\week1> python train.py
+Loading OPSSAT data...
+Nominal fitting segments: 1019
+Nominal development segments: 254
+Preparing fitting data...
+Preparing development data...
+Train shape: (1019, 256)
+Validation shape: (254, 256)
+Spectrogram shape: (1019, 33, 7)
+Trainable parameters: 18833
+
+========================================
+STARTING TIMED WEEK-1 RUN
+========================================
+CPU threads: 6
+DataLoader workers: 0
+Maximum epochs: 30
+Maximum elapsed time: 30 minutes
+
+Epoch 01 | Train Loss: 0.010230 | Val Loss: 0.002895 | Elapsed: 0.01 min
+Epoch 02 | Train Loss: 0.002079 | Val Loss: 0.001271 | Elapsed: 0.03 min
+Epoch 03 | Train Loss: 0.001025 | Val Loss: 0.000746 | Elapsed: 0.04 min
+Epoch 04 | Train Loss: 0.000618 | Val Loss: 0.000468 | Elapsed: 0.05 min
+Epoch 05 | Train Loss: 0.000404 | Val Loss: 0.000320 | Elapsed: 0.07 min
+Epoch 06 | Train Loss: 0.000294 | Val Loss: 0.000244 | Elapsed: 0.08 min
+Epoch 07 | Train Loss: 0.000230 | Val Loss: 0.000209 | Elapsed: 0.09 min
+Epoch 08 | Train Loss: 0.000185 | Val Loss: 0.000166 | Elapsed: 0.10 min
+Epoch 09 | Train Loss: 0.000164 | Val Loss: 0.000212 | Elapsed: 0.11 min
+Epoch 10 | Train Loss: 0.000138 | Val Loss: 0.000141 | Elapsed: 0.13 min
+Epoch 11 | Train Loss: 0.000115 | Val Loss: 0.000119 | Elapsed: 0.14 min
+Epoch 12 | Train Loss: 0.000113 | Val Loss: 0.000124 | Elapsed: 0.15 min
+Epoch 13 | Train Loss: 0.000118 | Val Loss: 0.000132 | Elapsed: 0.16 min
+Epoch 14 | Train Loss: 0.000108 | Val Loss: 0.000101 | Elapsed: 0.17 min
+Epoch 15 | Train Loss: 0.000082 | Val Loss: 0.000089 | Elapsed: 0.19 min
+Epoch 16 | Train Loss: 0.000075 | Val Loss: 0.000084 | Elapsed: 0.20 min
+Epoch 17 | Train Loss: 0.000072 | Val Loss: 0.000102 | Elapsed: 0.21 min
+Epoch 18 | Train Loss: 0.000092 | Val Loss: 0.000102 | Elapsed: 0.22 min
+Epoch 19 | Train Loss: 0.000069 | Val Loss: 0.000078 | Elapsed: 0.23 min
+Epoch 20 | Train Loss: 0.000064 | Val Loss: 0.000074 | Elapsed: 0.24 min
+Epoch 21 | Train Loss: 0.000059 | Val Loss: 0.000063 | Elapsed: 0.25 min
+Epoch 22 | Train Loss: 0.000055 | Val Loss: 0.000063 | Elapsed: 0.27 min
+Epoch 23 | Train Loss: 0.000065 | Val Loss: 0.000061 | Elapsed: 0.28 min
+Epoch 24 | Train Loss: 0.000110 | Val Loss: 0.000077 | Elapsed: 0.29 min
+Epoch 25 | Train Loss: 0.000054 | Val Loss: 0.000058 | Elapsed: 0.30 min
+Epoch 26 | Train Loss: 0.000045 | Val Loss: 0.000050 | Elapsed: 0.31 min
+Epoch 27 | Train Loss: 0.000043 | Val Loss: 0.000053 | Elapsed: 0.32 min
+Epoch 28 | Train Loss: 0.000043 | Val Loss: 0.000050 | Elapsed: 0.33 min
+Epoch 29 | Train Loss: 0.000050 | Val Loss: 0.000045 | Elapsed: 0.34 min
+Epoch 30 | Train Loss: 0.000042 | Val Loss: 0.000041 | Elapsed: 0.36 min
+
+========================================
+TRAINING FINISHED
+========================================
+Elapsed training time: 21.34 seconds
+Aggregate main-process CPU time: 58.34 seconds
+Best validation loss: 0.000041
+Peak Python working-set memory: 414.28 MB
+
+Starting timed unscored inference...
+Timed inference over validation-shaped data: 0.05 seconds
+
+IMPORTANT:
+No test labels or test metrics were used.
+Week-1 reference run complete.
+PS C:\Users\hema3\Downloads\Release_Bundle_RevD1\Release_Bundle_RevD1\I1\week1> Start-Transcript -Path .\week1_full_log.txt
+Transcript started, output file is .\week1_full_log.txt
+PS C:\Users\hema3\Downloads\Release_Bundle_RevD1\Release_Bundle_RevD1\I1\week1>

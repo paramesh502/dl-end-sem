@@ -1,0 +1,115 @@
+======================================================================
+PART 1: OPSSAT-AD Classical Baselines
+======================================================================
+
+OPSSAT-AD split counts:
+  Nominal fitting fragments :  1019
+  Nominal development frags :  254
+  Test fragments            :  529
+
+Test set: 529 fragments | 113 anomalous | 416 nominal
+
+--------------------------------------------------
+Baseline 1: Isolation Forest
+  100 trees, seed=22, training-only standardisation
+--------------------------------------------------
+  Calibrated threshold (99th pctile of dev scores): 0.201592
+  Dev alarm rate: 3/254 = 1.18%
+  Test precision: 0.1111 | recall: 0.0088 | F1: 0.0164
+  Test support:   positives=113 negatives=416
+  Fit time: 0.05s
+
+--------------------------------------------------
+Baseline 2: PCA reconstruction error
+  Retains smallest dimension explaining >=95% training variance
+--------------------------------------------------
+  PCA components retained: 4 (explaining >= 95% variance)
+  Calibrated threshold (99th pctile of dev scores): 0.030605
+  Dev alarm rate: 3/254 = 1.18%
+  Test precision: 0.2857 | recall: 0.0354 | F1: 0.0630
+  Test support:   positives=113 negatives=416
+  Fit time: 0.00s
+
+--------------------------------------------------
+Baseline 3: Trivial constant/threshold detector
+  Distance of fragment mean from nominal-training mean (in std units)
+--------------------------------------------------
+  Nominal training grand mean (fragment means): 0.127890
+  Nominal training grand std  (fragment means): 0.212891
+  Calibrated threshold (99th pctile of dev scores): 3.410388
+  Dev alarm rate: 3/254 = 1.18%
+  Test precision: 0.1111 | recall: 0.0088 | F1: 0.0164
+  Test support:   positives=113 negatives=416
+
+  Constant-all-nominal floor (predict all normal):
+    precision=0.0000 | recall=0.0000 | F1=0.0000
+
+======================================================================
+OPSSAT-AD SUMMARY TABLE
+======================================================================
+Method                           Dev Alarm Rate   Test P   Test R  Test F1
+---------------------------------------------------------------------------
+Isolation Forest               3/254 (1.2%) 0.1111   0.0088   0.0164
+PCA recon. error               3/254 (1.2%) 0.2857   0.0354   0.0630
+Trivial (mean dist.)           3/254 (1.2%) 0.1111   0.0088   0.0164
+Constant-all-nominal (floor)                N/A  0.0000   0.0000   0.0000
+
+NOTE: Dev partition is NOMINAL ONLY. Precision/recall/F1 are undefined on dev.
+      Reported dev alarm rate = false-alarm rate on nominal fragments.
+
+======================================================================
+PART 2: SMAP/MSL Classical Baselines  (P-1 and C-1)
+======================================================================
+
+------------------------------------------------------------
+Stream: SMAP P-1
+------------------------------------------------------------
+  Fit steps: 2297 | Cal steps: 319 | Test steps: 8505
+  Anomalous test points: 751 (8.83%)
+  Anomaly intervals (3): [(2149, 2349), (4536, 4844), (3539, 3779)]
+  [IsolationForest]
+    Threshold (99th pctile of cal): 0.029441
+    Unadj. point  P=0.1656 R=0.7736 F1=0.2728
+    Pt-adj (AUDIT) P=0.2041 R=1.0000 F1=0.3391
+  [PCA reconstruction]
+    Components (>=95% var): 5
+    Threshold: 0.090753
+    Unadj. point  P=0.3295 R=0.4581 F1=0.3833
+    Pt-adj (AUDIT) P=0.5176 R=1.0000 F1=0.6821
+  [Trivial detector]
+    Threshold: 0.666753
+    Unadj. point  P=0.1292 R=0.8602 F1=0.2247
+    Pt-adj (AUDIT) P=0.1471 R=1.0000 F1=0.2565
+
+------------------------------------------------------------
+Stream: MSL C-1
+------------------------------------------------------------
+  Fit steps: 1726 | Cal steps: 176 | Test steps: 2264
+  Anomalous test points: 312 (13.78%)
+  Anomaly intervals (2): [(550, 750), (2100, 2210)]
+  [IsolationForest]
+    Threshold (99th pctile of cal): -0.018319
+    Unadj. point  P=0.1505 R=0.9455 F1=0.2597
+    Pt-adj (AUDIT) P=0.1578 R=1.0000 F1=0.2726
+  [PCA reconstruction]
+    Components (>=95% var): 4
+    Threshold: 0.002729
+    Unadj. point  P=0.1532 R=0.7949 F1=0.2569
+    Pt-adj (AUDIT) P=0.1854 R=1.0000 F1=0.3128
+  [Trivial detector]
+    Threshold: 1.017836
+    Unadj. point  P=0.1783 R=0.8814 F1=0.2967
+    Pt-adj (AUDIT) P=0.1976 R=1.0000 F1=0.3300
+
+======================================================================
+NOTES
+======================================================================
+1. OPSSAT-AD dev partition is NOMINAL ONLY — F1 is undefined there.
+   Dev alarm rates above represent FALSE ALARM RATES on nominal data.
+2. SMAP/MSL point-adjusted F1 is an AUDIT FIGURE (labelled as such).
+   Unadjusted point F1 is the primary metric.
+3. All thresholds calibrated at 99th percentile of nominal dev/cal scores.
+4. No test labels or test metrics were used for threshold selection.
+5. SMAP/MSL data is pre-scaled using test-set min/max (inherited limitation).
+
+Baselines complete.

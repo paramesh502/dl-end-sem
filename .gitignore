@@ -1,0 +1,27 @@
+# Python virtual environment
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Large binary data files — keep the issued split CSVs but not raw .npy arrays
+Release_Bundle_RevD1/Release_Bundle_RevD1/I1/SMAP_MSL_train_P-1.npy
+Release_Bundle_RevD1/Release_Bundle_RevD1/I1/SMAP_MSL_test_P-1.npy
+Release_Bundle_RevD1/Release_Bundle_RevD1/I1/SMAP_MSL_train_C-1.npy
+Release_Bundle_RevD1/Release_Bundle_RevD1/I1/SMAP_MSL_test_C-1.npy
+
+# Trained model weights (large binaries — reproducible by running the scripts)
+results/*.pt
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Editor
+.vscode/
+*.swp
