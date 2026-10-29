@@ -1,0 +1,82 @@
+
+============================================================
+  Loading data
+============================================================
+  ✓  data_loading  |  samples=110  |  1.06s
+
+============================================================
+  Non-DL Baselines
+============================================================
+  ✓  isolation_forest  |  samples=60  |  0.05s
+  ✓  pca_reconstruction  |  samples=60  |  0.02s
+  ✓  trivial_detector  |  samples=60  |  0.00s
+
+============================================================
+  1-D Convolutional Autoencoder
+============================================================
+  Params: 6,353
+  ✓  1d_conv_autoencoder  |  samples=60  |  0.21s
+
+============================================================
+  2-D Spectrogram Autoencoder
+============================================================
+  Params: 18,833
+  Spectrogram shape: (1,33,7)
+  ✓  2d_spectrogram_autoencoder  |  samples=60  |  0.13s
+
+============================================================
+  Temporal Attention Autoencoder (+ ablation)
+============================================================
+  Attention params: 6,370  (base=6,353, diff=17)
+  ✓  attention_autoencoder  |  samples=60  |  0.12s
+  Ablation: no-attention 1-D AE already run above (run R05, val_mse=0.000082)
+  ✓  attention_ablation_comparison  |  samples=60  |  0.12s
+
+============================================================
+  Fusion (1D + 2D, w=0.5)
+============================================================
+  Fusion threshold (99th pctile dev): 0.9352
+  NOTE: test metric NOT computed (smoke test — no test scoring)
+  ✓  fusion_1d_2d  |  samples=50  |  0.03s
+
+============================================================
+  Core Experiment 1 preliminary — OPSSAT-AD (dev/val only)
+============================================================
+  1-D AE  dev alarm rate (nominal): 1/30 = 3.3%  [threshold=1.212276]
+  2-D AE  dev alarm rate (nominal): 1/30 = 3.3%  [threshold=0.029018]
+  Full-fit val results (from run log):
+    R05 1-D AE  val_mse=0.000082  dev_alarm_rate=1.18%
+    R06 2-D AE  val_mse=0.000042  dev_alarm_rate=1.18%
+    R07 Att AE  val_mse=0.000790  dev_alarm_rate=1.18%
+  NOTE: Report validation numbers only. Test partition NOT scored here.
+  ✓  core_exp1_preliminary  |  samples=30  |  0.01s
+
+============================================================
+  Core Experiment 2 preliminary — SMAP/MSL (unscored inference pass)
+============================================================
+  Stream P-1: 8 train windows, 12 test-shaped inference windows — no metric computed
+  Stream C-1: 8 train windows, 12 test-shaped inference windows — no metric computed
+  Full-fit val results (from run log):
+    R09 P-1  val_cal_mse=0.336588  (source-val only)
+    R10 C-1  val_cal_mse=0.089802  (source-val only)
+  NOTE: Target evaluation waits for results freeze (per checkpoint instructions).
+  ✓  core_exp2_smap_msl_preliminary  |  samples=16  |  0.06s
+
+============================================================
+SMOKE TEST SUMMARY
+============================================================
+  Total elapsed : 4.3s  (0.07 min)
+  Passed : 11
+    ✓  data_loading
+    ✓  isolation_forest
+    ✓  pca_reconstruction
+    ✓  trivial_detector
+    ✓  1d_conv_autoencoder
+    ✓  2d_spectrogram_autoencoder
+    ✓  attention_autoencoder
+    ✓  attention_ablation_comparison
+    ✓  fusion_1d_2d
+    ✓  core_exp1_preliminary
+    ✓  core_exp2_smap_msl_preliminary
+  All components passed.
+  test_scored = no  (no test metrics computed anywhere in this run)
