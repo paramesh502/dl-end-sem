@@ -3,144 +3,113 @@ Week 4 — 1-D Conv Autoencoder (No Attention) — SMAP / MSL
 Team 05, Card I1
 =================================================================
 
-NOTE: Point-adjusted F1 is an AUDIT figure. Never used for
-      threshold selection or architectural decisions.
+Calibration only (revised Handout §14): no test partition is scored before
+the results freeze. Earlier test-scored runs (R09, R10) are recorded as
+test_scored=yes in T05_I1_runlog.csv; their test metrics are NOT recomputed.
+
+Calibration uses guard-context windows per revised Annex D6: a calibration
+window may take earlier context from the guard, never from fit rows, and
+only calibration points are scored (one window per cal point, right-aligned).
+P-1 yields 319 calibration-point scores; C-1 yields 176. No boundary padding
+is required (the guard supplies left context; every window ends at a cal point).
 
 -----------------------------------------------------------------
 Stream : SMAP P-1
 -----------------------------------------------------------------
   Model params     : 6,353
   Train length     : 2872
-  Test  length     : 8505
-  Fit  portion     : [0, 2297)
-  Guard gap used   : 256 steps
-  Cal  portion     : [2553, 2872)
-  Fit mean / std   : -0.431109 / 0.392837
-  Train windows    : 32 (stride 64)
-  Cal windows      : 64 (stride 1)
-  Test windows     : 8250 (stride 1)
-  Stopped by       : completed all epochs
-  Elapsed          : 1.07s (0.02 min)
-  Cal threshold    : 0.382350  (99th pctile of cal-win MSE)
+  Fit  portion      : [0, 2297)
+  Guard gap         : 256 steps  [2297, 2553)
+  Cal  portion      : [2553, 2872)  (319 cal steps)
+  Fit mean / std    : -0.431109 / 0.392837
+  Train windows      : 32 (stride 64)
+  Cal windows        : 319 (one per cal point, guard-context)
+  Stopped by        : completed all epochs
+  Elapsed           : 3.07s (0.05 min)
+  Cal point scores  : 319
+  Cal threshold     : 0.450251  (99th pctile of cal-point MSE)
+  Cal alarm count   : 4/319
+  Cal alarm rate    : 1.25%
 
-  Training history:
-    Epoch 01: train=1.038760  val_cal=1.359207
-    Epoch 02: train=1.030012  val_cal=1.347271
-    Epoch 03: train=1.021538  val_cal=1.335759
-    Epoch 04: train=1.013200  val_cal=1.324166
-    Epoch 05: train=1.004751  val_cal=1.311709
-    Epoch 06: train=0.995862  val_cal=1.297420
-    Epoch 07: train=0.985818  val_cal=1.279760
-    Epoch 08: train=0.973938  val_cal=1.259337
-    Epoch 09: train=0.959910  val_cal=1.236139
-    Epoch 10: train=0.943881  val_cal=1.209858
-    Epoch 11: train=0.925860  val_cal=1.180788
-    Epoch 12: train=0.905882  val_cal=1.148887
-    Epoch 13: train=0.883805  val_cal=1.113758
-    Epoch 14: train=0.859432  val_cal=1.075468
-    Epoch 15: train=0.832647  val_cal=1.033677
-    Epoch 16: train=0.803377  val_cal=0.987954
-    Epoch 17: train=0.771393  val_cal=0.938272
-    Epoch 18: train=0.736520  val_cal=0.884709
-    Epoch 19: train=0.698860  val_cal=0.827815
-    Epoch 20: train=0.658797  val_cal=0.768613
-    Epoch 21: train=0.616883  val_cal=0.708316
-    Epoch 22: train=0.573996  val_cal=0.648864
-    Epoch 23: train=0.531276  val_cal=0.592616
-    Epoch 24: train=0.490069  val_cal=0.541887
-    Epoch 25: train=0.452042  val_cal=0.498489
-    Epoch 26: train=0.418519  val_cal=0.462398
-    Epoch 27: train=0.389824  val_cal=0.431106
-    Epoch 28: train=0.364595  val_cal=0.400523
-    Epoch 29: train=0.340949  val_cal=0.368461
-    Epoch 30: train=0.317868  val_cal=0.336588
-
-  ── PRIMARY (unadjusted point-level) ──
-  Precision : 0.0000
-  Recall    : 0.0000
-  F1        : 0.0000
-
-  ── AUDIT ONLY (point-adjusted) ──
-  Pt-adj F1 : 0.0000
+  Training history (train MSE / val_cal mean MSE per epoch):
+    Epoch 01: train=1.038760  val_cal=1.380844
+    Epoch 02: train=1.030012  val_cal=1.369111
+    Epoch 03: train=1.021538  val_cal=1.357567
+    Epoch 04: train=1.013200  val_cal=1.345859
+    Epoch 05: train=1.004751  val_cal=1.333066
+    Epoch 06: train=0.995862  val_cal=1.318273
+    Epoch 07: train=0.985818  val_cal=1.300970
+    Epoch 08: train=0.973938  val_cal=1.281021
+    Epoch 09: train=0.959910  val_cal=1.258232
+    Epoch 10: train=0.943881  val_cal=1.232432
+    Epoch 11: train=0.925860  val_cal=1.203747
+    Epoch 12: train=0.905882  val_cal=1.172278
+    Epoch 13: train=0.883805  val_cal=1.137761
+    Epoch 14: train=0.859432  val_cal=1.100028
+    Epoch 15: train=0.832647  val_cal=1.058721
+    Epoch 16: train=0.803377  val_cal=1.013566
+    Epoch 17: train=0.771393  val_cal=0.964360
+    Epoch 18: train=0.736520  val_cal=0.911178
+    Epoch 19: train=0.698860  val_cal=0.854528
+    Epoch 20: train=0.658797  val_cal=0.795303
+    Epoch 21: train=0.616883  val_cal=0.734747
+    Epoch 22: train=0.573996  val_cal=0.674584
+    Epoch 23: train=0.531276  val_cal=0.617161
+    Epoch 24: train=0.490069  val_cal=0.564924
+    Epoch 25: train=0.452042  val_cal=0.519751
+    Epoch 26: train=0.418519  val_cal=0.482110
+    Epoch 27: train=0.389824  val_cal=0.450236
+    Epoch 28: train=0.364595  val_cal=0.420700
+    Epoch 29: train=0.340949  val_cal=0.391511
+    Epoch 30: train=0.317868  val_cal=0.364416
 
 -----------------------------------------------------------------
 Stream : MSL C-1
 -----------------------------------------------------------------
   Model params     : 6,353
   Train length     : 2158
-  Test  length     : 2264
-  Fit  portion     : [0, 1726)
-  Guard gap used   : 176 steps  (reduced from 256 — short stream)
-  Cal  portion     : [1902, 2158)
-  Fit mean / std   : -0.681741 / 0.447685
-  Train windows    : 23 (stride 64)
-  Cal windows      : 1 (stride 1)
-  Test windows     : 2009 (stride 1)
-  Stopped by       : completed all epochs
-  Elapsed          : 0.36s (0.01 min)
-  Cal threshold    : 0.089802  (99th pctile of cal-win MSE)
+  Fit  portion      : [0, 1726)
+  Guard gap         : 256 steps  [1726, 1982)
+  Cal  portion      : [1982, 2158)  (176 cal steps)
+  Fit mean / std    : -0.681741 / 0.447685
+  Train windows      : 23 (stride 64)
+  Cal windows        : 176 (one per cal point, guard-context)
+  Stopped by        : early stopping (no improvement for 5 epochs)
+  Elapsed           : 1.83s (0.03 min)
+  Cal point scores  : 176
+  Cal threshold     : 0.129134  (99th pctile of cal-point MSE)
+  Cal alarm count   : 2/176
+  Cal alarm rate    : 1.14%
 
-  Training history:
-    Epoch 01: train=0.925970  val_cal=0.404592
-    Epoch 02: train=0.916578  val_cal=0.402541
-    Epoch 03: train=0.907810  val_cal=0.400365
-    Epoch 04: train=0.899222  val_cal=0.398234
-    Epoch 05: train=0.889793  val_cal=0.395701
-    Epoch 06: train=0.878520  val_cal=0.392500
-    Epoch 07: train=0.864587  val_cal=0.388467
-    Epoch 08: train=0.848046  val_cal=0.383426
-    Epoch 09: train=0.828874  val_cal=0.377265
-    Epoch 10: train=0.806891  val_cal=0.369743
-    Epoch 11: train=0.781573  val_cal=0.361112
-    Epoch 12: train=0.754029  val_cal=0.351218
-    Epoch 13: train=0.724071  val_cal=0.339571
-    Epoch 14: train=0.690366  val_cal=0.326117
-    Epoch 15: train=0.652743  val_cal=0.310820
-    Epoch 16: train=0.610945  val_cal=0.293715
-    Epoch 17: train=0.564845  val_cal=0.275038
-    Epoch 18: train=0.514861  val_cal=0.256048
-    Epoch 19: train=0.462277  val_cal=0.236393
-    Epoch 20: train=0.407367  val_cal=0.216139
-    Epoch 21: train=0.351059  val_cal=0.195646
-    Epoch 22: train=0.295095  val_cal=0.175557
-    Epoch 23: train=0.242151  val_cal=0.156869
-    Epoch 24: train=0.195919  val_cal=0.140800
-    Epoch 25: train=0.160955  val_cal=0.129005
-    Epoch 26: train=0.142161  val_cal=0.121712
-    Epoch 27: train=0.140981  val_cal=0.116542
-    Epoch 28: train=0.151552  val_cal=0.110310
-    Epoch 29: train=0.161215  val_cal=0.101065
-    Epoch 30: train=0.160332  val_cal=0.089802
+  Training history (train MSE / val_cal mean MSE per epoch):
+    Epoch 01: train=0.925970  val_cal=0.811688
+    Epoch 02: train=0.916578  val_cal=0.800951
+    Epoch 03: train=0.907810  val_cal=0.790345
+    Epoch 04: train=0.899222  val_cal=0.779228
+    Epoch 05: train=0.889793  val_cal=0.767007
+    Epoch 06: train=0.878520  val_cal=0.753305
+    Epoch 07: train=0.864587  val_cal=0.737598
+    Epoch 08: train=0.848046  val_cal=0.719286
+    Epoch 09: train=0.828874  val_cal=0.698297
+    Epoch 10: train=0.806891  val_cal=0.674130
+    Epoch 11: train=0.781573  val_cal=0.646797
+    Epoch 12: train=0.754029  val_cal=0.616515
+    Epoch 13: train=0.724071  val_cal=0.583071
+    Epoch 14: train=0.690366  val_cal=0.546526
+    Epoch 15: train=0.652743  val_cal=0.506599
+    Epoch 16: train=0.610945  val_cal=0.463396
+    Epoch 17: train=0.564845  val_cal=0.417133
+    Epoch 18: train=0.514861  val_cal=0.368652
+    Epoch 19: train=0.462277  val_cal=0.318263
+    Epoch 20: train=0.407367  val_cal=0.267041
+    Epoch 21: train=0.351059  val_cal=0.216741
+    Epoch 22: train=0.295095  val_cal=0.170004
+    Epoch 23: train=0.242151  val_cal=0.130434
+    Epoch 24: train=0.195919  val_cal=0.102451
+    Epoch 25: train=0.160955  val_cal=0.090493
+    Epoch 26: train=0.142161  val_cal=0.095528
+    Epoch 27: train=0.140981  val_cal=0.110646
+    Epoch 28: train=0.151552  val_cal=0.122383
+    Epoch 29: train=0.161215  val_cal=0.120977
+    Epoch 30: train=0.160332  val_cal=0.105071
 
-  ── PRIMARY (unadjusted point-level) ──
-  Precision : 0.1865
-  Recall    : 0.9840
-  F1        : 0.3136
-
-  ── AUDIT ONLY (point-adjusted) ──
-  Pt-adj F1 : 0.3179
-
-=================================================================
-Comparison vs Classical Baselines
-=================================================================
-
-SMAP P-1:
-  Method                       Unadj F1   Pt-adj F1
-  -------------------------  ----------  ----------
-  Isolation Forest               0.2728      0.3391
-  PCA (5 components)             0.3833      0.6821
-  Trivial (mean dist)            0.2247      0.2565
-  Conv1dAutoencoder              0.0000      0.0000
-
-MSL C-1:
-  Method                       Unadj F1   Pt-adj F1
-  -------------------------  ----------  ----------
-  Isolation Forest               0.2597      0.2726
-  PCA (4 components)             0.2569      0.3128
-  Trivial (mean dist)            0.2967      0.3300
-  Conv1dAutoencoder              0.3136      0.3179
-
-─────────────────────────────────────────────────────────────────
-Point-adjusted F1 is an AUDIT figure. Never used for threshold
-selection or architectural decisions.
-─────────────────────────────────────────────────────────────────

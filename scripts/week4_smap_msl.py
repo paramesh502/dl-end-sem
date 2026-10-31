@@ -5,13 +5,21 @@ Week 4 — Card I1 — Satellite Telemetry Anomaly Detection
 Team 05: K Hemalatha Reddy, B Parameshwar Reddy, Jagan Sai Kumar
 
 Fit the NO-ATTENTION 1-D convolutional autoencoder INDEPENDENTLY on:
-  • SMAP  P-1  (8505 test steps, column 0, 25 features total)
-  • MSL   C-1  (2264 test steps, column 0, 55 features total)
+  • SMAP  P-1  (train 2,872 steps, column 0, 25 features total)
+  • MSL   C-1  (train 2,158 steps, column 0, 55 features total)
 
-Split protocol: Annex D6 (80/20 fit/cal, guard gap = 256).
-Threshold    : 99th percentile of CALIBRATION window MSE scores.
-Evaluation   : Unadjusted point-level F1 (primary)
-               Point-adjusted F1 (AUDIT figure only).
+Split protocol (Annex D6, revised): first 80% fit, a 256-step guard gap, the
+remaining 20% calibration. Scoring uses 256-step windows. Calibration uses
+GUARD-CONTEXT windows per the revised Annex D6 rule: a calibration window may
+take earlier context from the guard, never from fit rows, and only calibration
+points are scored (one window per cal point, right-aligned).
+
+Threshold    : 99th percentile of CALIBRATION-point reconstruction MSE scores.
+Calibration  : per-stream; reports threshold, cal alarm count and cal alarm rate.
+
+Per revised Handout §14, NO test partition is scored before the results freeze.
+This script therefore reports calibration figures only and does not load or
+score the test stream.
 
 Run from project root:
     source .venv/bin/activate
@@ -25,7 +33,6 @@ import numpy as np
 import torch
 import torch.nn as nn
 from torch.utils.data import Dataset, DataLoader
-from sklearn.metrics import precision_recall_fscore_support
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Constants  (Annex D0)
@@ -118,6 +125,31 @@ def extract_windows(series: np.ndarray, window: int, stride: int) -> np.ndarray:
 
 
 # =============================================================================
+# Helper: guard-context calibration windows (one per cal point, right-aligned)
+# =============================================================================
+def cal_context_windows(series_z: np.ndarray, fit_end: int,
+                         cal_start: int, cal_end: int,
+                         window: int = WINDOW) -> np.ndarray:
+    """
+    Revised Annex D6 calibration rule:
+      - One window per calibration point, right-aligned (the window ends at the
+        point, which it scores at its right edge).
+      - The window may take earlier context from the GUARD, never from fit rows
+        (the left edge is always >= fit_end+1 > fit_end).
+      - No padding is required: the guard supplies left context for the earliest
+        calibration points, and every window ends at a calibration point inside
+        the training stream.
+    Returns (N_cal, window) array of windows (319 for P-1, 176 for C-1).
+    """
+    wins = []
+    for p in range(cal_start, cal_end):
+        start = p - window + 1
+        assert start >= fit_end, "calibration window must not enter fit rows"
+        wins.append(series_z[start:p + 1])
+    return np.stack(wins, axis=0)
+
+
+# =============================================================================
 # Helper: score each window independently → per-window MSE array
 # =============================================================================
 def score_windows(model: nn.Module, windows: np.ndarray) -> np.ndarray:
@@ -139,124 +171,56 @@ def score_windows(model: nn.Module, windows: np.ndarray) -> np.ndarray:
 
 
 # =============================================================================
-# Helper: aggregate per-window scores to per-time-step scores
+# Core routine: fit + calibrate one stream (NO test scoring)
 # =============================================================================
-def windows_to_timestep_scores(
-    window_scores: np.ndarray, T_test: int, window: int
-) -> np.ndarray:
-    """
-    For stride-1 scoring over a test stream of length T_test:
-      - There are (T_test - window + 1) windows.
-      - Window s covers time-steps s .. s+window-1.
-      - Each time-step t receives the MEAN MSE of all windows covering it.
-      - Edge steps (< window full-coverage windows) are still scored.
-    """
-    N = T_test - window + 1
-    assert len(window_scores) == N, \
-        f"Expected {N} window scores, got {len(window_scores)}"
-
-    acc   = np.zeros(T_test, dtype=np.float64)
-    count = np.zeros(T_test, dtype=np.int64)
-
-    for s, sc in enumerate(window_scores):
-        acc[s:s + window]   += sc
-        count[s:s + window] += 1
-
-    # All positions should be covered at least once
-    assert (count > 0).all(), "Some time-steps have zero window coverage!"
-    return (acc / count).astype(np.float32)
-
-
-# =============================================================================
-# Helper: point-adjusted F1  (AUDIT figure only)
-# =============================================================================
-def point_adjusted_f1(y_true: np.ndarray, y_pred: np.ndarray,
-                      anomaly_intervals: list) -> float:
-    """
-    If ANY predicted point falls inside a true anomaly interval,
-    label the ENTIRE interval as predicted anomaly.
-    Returns F1.  — AUDIT FIGURE ONLY.
-    """
-    y_adj = y_pred.copy()
-    for s, e in anomaly_intervals:
-        if y_pred[s:e + 1].any():
-            y_adj[s:e + 1] = 1
-    _, _, f1, _ = precision_recall_fscore_support(
-        y_true, y_adj, average="binary", zero_division=0
-    )
-    return float(f1)
-
-
-# =============================================================================
-# Core routine: fit + evaluate one stream
-# =============================================================================
-def run_stream(
-    name: str,
-    train_npy: Path,
-    test_npy: Path,
-    anomaly_intervals: list,   # list of (start, end) inclusive, 0-based test indices
-):
+def run_stream(name: str, train_npy: Path):
     print()
     print("=" * 65)
     print(f"  STREAM: {name}")
     print("=" * 65)
 
-    # ── 1. Load data (column 0 only) ────────────────────────────────────
+    # ── 1. Load training data (column 0 only) ────────────────────────────
     train_raw = np.load(train_npy)[:, 0].astype(np.float32)
-    test_raw  = np.load(test_npy)[:, 0].astype(np.float32)
     T_train   = len(train_raw)
-    T_test    = len(test_raw)
-    print(f"  Train length : {T_train}   Test length : {T_test}")
+    print(f"  Train length : {T_train}")
 
-    # ── 2. Split  (Annex D6) ────────────────────────────────────────────
-    fit_end  = int(0.8 * T_train)              # last index (exclusive) of fit portion
-
-    # Guard gap: 256 normally, but capped so the cal portion always has
-    # at least WINDOW steps (required to extract at least one cal window).
-    # Annex D6 does not mandate a fixed guard for short streams.
-    actual_guard = min(GUARD, max(0, T_train - fit_end - WINDOW))
-    cal_start    = fit_end + actual_guard
+    # ── 2. Split (Annex D6, revised: guard is always 256; no capping) ─────
+    fit_end  = int(0.8 * T_train)              # last index (exclusive) of fit
+    cal_start = fit_end + GUARD                 # guard = [fit_end, cal_start)
+    cal_end   = T_train                         # cal   = [cal_start, cal_end)
+    n_cal     = cal_end - cal_start
 
     fit_series = train_raw[:fit_end]
-    cal_series = train_raw[cal_start:]
-
     print(f"  Fit  : [0, {fit_end})  ({len(fit_series)} steps)")
-    print(f"  Guard: [{fit_end}, {cal_start})  ({actual_guard} steps)"
-          + ("" if actual_guard == GUARD else f"  [reduced from {GUARD} — short stream]"))
-    print(f"  Cal  : [{cal_start}, {T_train})  ({len(cal_series)} steps)")
+    print(f"  Guard: [{fit_end}, {cal_start})  ({GUARD} steps)")
+    print(f"  Cal  : [{cal_start}, {cal_end})  ({n_cal} steps) -> {n_cal} calibration-point scores")
 
-    # ── 3. Standardise  (fit statistics only) ───────────────────────────
+    # ── 3. Standardise (fit statistics only) ─────────────────────────────
     mu  = float(fit_series.mean())
     sig = float(fit_series.std())
     if sig == 0.0:
         sig = 1.0
-
-    fit_z  = (fit_series - mu) / sig
-    cal_z  = (cal_series - mu) / sig
-    test_z = (test_raw   - mu) / sig
-
+    train_z = (train_raw - mu) / sig            # full series, fit-standardised
     print(f"  Fit mean: {mu:.6f}   std: {sig:.6f}")
 
     # ── 4. Window extraction ─────────────────────────────────────────────
-    win_train = extract_windows(fit_z, WINDOW, TRAIN_STRIDE)  # stride-64
-    win_cal   = extract_windows(cal_z, WINDOW, 1)              # stride-1
-    win_test  = extract_windows(test_z, WINDOW, 1)             # stride-1
+    win_fit = extract_windows(train_z[:fit_end], WINDOW, TRAIN_STRIDE)  # stride-64
+    win_cal = cal_context_windows(train_z, fit_end, cal_start, cal_end)  # guard-context
+    assert win_cal.shape[0] == n_cal, (win_cal.shape[0], n_cal)
 
-    print(f"  Train windows : {win_train.shape}  (stride {TRAIN_STRIDE})")
-    print(f"  Cal   windows : {win_cal.shape}   (stride 1)")
-    print(f"  Test  windows : {win_test.shape}   (stride 1)")
+    print(f"  Fit windows  : {win_fit.shape}  (stride {TRAIN_STRIDE})")
+    print(f"  Cal windows  : {win_cal.shape}  (one per cal point, guard-context)")
 
     # ── 5. Reproducibility seed ──────────────────────────────────────────
     torch.manual_seed(SEED)
     np.random.seed(SEED)
 
     # ── 6. Build model ───────────────────────────────────────────────────
-    model  = Conv1dAutoencoder()
-    n_par  = sum(p.numel() for p in model.parameters() if p.requires_grad)
+    model = Conv1dAutoencoder()
+    n_par = sum(p.numel() for p in model.parameters() if p.requires_grad)
     assert n_par <= 250_000, f"Param count {n_par} exceeds cap"
     print(f"  Model params : {n_par:,}")
 
-    # Shape sanity check
     with torch.no_grad():
         dummy = torch.zeros(1, 1, WINDOW)
         assert model(dummy).shape == dummy.shape
@@ -269,10 +233,10 @@ def run_stream(
         def __getitem__(self, i): return self.w[i]
 
     train_loader = DataLoader(
-        WindowDataset(win_train), batch_size=BATCH_SIZE, shuffle=True
+        WindowDataset(win_fit), batch_size=BATCH_SIZE, shuffle=True
     )
 
-    # ── 8. Training loop ─────────────────────────────────────────────────
+    # ── 8. Training loop (validation proxy = mean cal-point score) ───────
     optimizer  = torch.optim.Adam(model.parameters(), lr=LR)
     criterion  = nn.MSELoss()
     best_loss  = float("inf")
@@ -298,11 +262,10 @@ def run_stream(
             loss.backward()
             optimizer.step()
             tr_loss_sum += loss.item() * len(batch)
-        tr_loss = tr_loss_sum / len(win_train)
+        tr_loss = tr_loss_sum / len(win_fit)
 
-        # Validation: use calibration windows as a proxy validation set
-        # (These are nominal-only because they come from the training file.)
-        model.eval()
+        # Validation proxy: mean reconstruction MSE over the guard-context
+        # calibration windows (only calibration points are scored).
         val_scores = score_windows(model, win_cal)
         val_loss   = float(val_scores.mean())
 
@@ -332,64 +295,35 @@ def run_stream(
     print(f"  Best val loss : {best_loss:.6f}")
     print(f"  Total elapsed : {elapsed_total:.2f}s ({elapsed_total/60:.2f} min)")
 
-    # ── 9. Calibration threshold ─────────────────────────────────────────
-    cal_win_scores = score_windows(model, win_cal)       # (N_cal,) per-window MSE
-    threshold      = float(np.percentile(cal_win_scores, THRESHOLD_PCT))
-    print(f"\n  Cal threshold (99th pctile) : {threshold:.6f}")
-
-    # ── 10. Score test stream ────────────────────────────────────────────
-    test_win_scores = score_windows(model, win_test)     # (T_test - 255,) per-window
-    test_ts_scores  = windows_to_timestep_scores(
-        test_win_scores, T_test, WINDOW
-    )                                                     # (T_test,) per-timestep
-
-    # ── 11. Build binary labels ──────────────────────────────────────────
-    y_true = np.zeros(T_test, dtype=int)
-    for s, e in anomaly_intervals:
-        y_true[s:e + 1] = 1
-
-    y_pred = (test_ts_scores >= threshold).astype(int)
-
-    n_anom = int(y_true.sum())
-    n_pred = int(y_pred.sum())
-    print(f"\n  True anomalous points : {n_anom} / {T_test}")
-    print(f"  Predicted anomalous   : {n_pred} / {T_test}")
-
-    # ── 12. Unadjusted metrics (PRIMARY) ─────────────────────────────────
-    prec, rec, f1, _ = precision_recall_fscore_support(
-        y_true, y_pred, average="binary", zero_division=0
-    )
-    print(f"\n  [PRIMARY] Unadjusted point-level metrics:")
-    print(f"    Precision : {prec:.4f}")
-    print(f"    Recall    : {rec:.4f}")
-    print(f"    F1        : {f1:.4f}")
-
-    # ── 13. Point-adjusted F1 (AUDIT ONLY) ───────────────────────────────
-    pa_f1 = point_adjusted_f1(y_true, y_pred, anomaly_intervals)
-    print(f"\n  [AUDIT ONLY] Point-adjusted F1 : {pa_f1:.4f}")
-    print(f"  (Not used for threshold or architectural decisions.)")
+    # ── 9. Calibration threshold (revised Annex D6) ───────────────────────
+    # One score per calibration point (guard-context window ending at the point).
+    cal_point_scores = score_windows(model, win_cal)        # (N_cal,) per-point MSE
+    threshold = float(np.percentile(cal_point_scores, THRESHOLD_PCT))
+    cal_alarms = int((cal_point_scores >= threshold).sum())
+    cal_rate = cal_alarms / n_cal
+    print(f"\n  Cal point scores        : {n_cal}")
+    print(f"  Cal threshold (99th pct) : {threshold:.6f}")
+    print(f"  Cal alarm count / rate  : {cal_alarms}/{n_cal} = {100*cal_rate:.2f}%")
+    print(f"  (Per revised §14, the test stream is NOT scored here.)")
 
     return {
-        "name":         name,
-        "prec":         prec,
-        "rec":          rec,
-        "f1":           f1,
-        "pa_f1":        pa_f1,
-        "threshold":    threshold,
-        "history":      history,
-        "stop_reason":  stop_reason,
-        "n_params":     n_par,
-        "elapsed":      elapsed_total,
-        "mu":           mu,
-        "sig":          sig,
-        "T_train":      T_train,
-        "T_test":       T_test,
-        "fit_end":      fit_end,
-        "cal_start":    cal_start,
-        "actual_guard": actual_guard,
-        "n_train_win":  len(win_train),
-        "n_cal_win":    len(win_cal),
-        "n_test_win":   len(win_test),
+        "name":          name,
+        "threshold":     threshold,
+        "cal_alarms":    cal_alarms,
+        "cal_rate":      cal_rate,
+        "n_cal":         n_cal,
+        "history":       history,
+        "stop_reason":   stop_reason,
+        "n_params":      n_par,
+        "elapsed":       elapsed_total,
+        "mu":            mu,
+        "sig":           sig,
+        "T_train":       T_train,
+        "fit_end":       fit_end,
+        "cal_start":     cal_start,
+        "n_train_win":   len(win_fit),
+        "n_cal_win":     len(win_cal),
+        "best_loss":     best_loss,
     }
 
 
@@ -397,7 +331,7 @@ def run_stream(
 # MAIN
 # =============================================================================
 print("=" * 65)
-print("Week 4 — 1-D Conv Autoencoder on SMAP P-1 and MSL C-1")
+print("Week 4 — 1-D Conv Autoencoder on SMAP P-1 and MSL C-1 (calibration only)")
 print("Team 05, Card I1")
 print("=" * 65)
 
@@ -405,31 +339,27 @@ print("=" * 65)
 res_p1 = run_stream(
     name="SMAP P-1",
     train_npy=DATA / "SMAP_MSL_train_P-1.npy",
-    test_npy =DATA / "SMAP_MSL_test_P-1.npy",
-    anomaly_intervals=[(2149, 2349), (4536, 4844), (3539, 3779)],
 )
 
 # ── C-1 ──────────────────────────────────────────────────────────────────────
 res_c1 = run_stream(
     name="MSL C-1",
     train_npy=DATA / "SMAP_MSL_train_C-1.npy",
-    test_npy =DATA / "SMAP_MSL_test_C-1.npy",
-    anomaly_intervals=[(550, 750), (2100, 2210)],
 )
 
 # =============================================================================
-# Print final summary
+# Print final summary (calibration only; no test metrics)
 # =============================================================================
 print()
 print("=" * 65)
-print("FINAL SUMMARY")
+print("FINAL SUMMARY  (calibration only; no test scored before the freeze)")
 print("=" * 65)
 for res in [res_p1, res_c1]:
     print(f"\n{res['name']}:")
-    print(f"  Unadj  Precision : {res['prec']:.4f}")
-    print(f"  Unadj  Recall    : {res['rec']:.4f}")
-    print(f"  Unadj  F1        : {res['f1']:.4f}   ← PRIMARY")
-    print(f"  Pt-adj F1        : {res['pa_f1']:.4f}   ← AUDIT ONLY")
+    print(f"  Cal point scores : {res['n_cal']}")
+    print(f"  Cal threshold    : {res['threshold']:.6f}  (99th pctile of cal-point MSE)")
+    print(f"  Cal alarm count  : {res['cal_alarms']}")
+    print(f"  Cal alarm rate   : {100*res['cal_rate']:.2f}%")
 
 # =============================================================================
 # Save results file
@@ -441,8 +371,15 @@ lines += [
     "Team 05, Card I1",
     "=" * 65,
     "",
-    "NOTE: Point-adjusted F1 is an AUDIT figure. Never used for",
-    "      threshold selection or architectural decisions.",
+    "Calibration only (revised Handout §14): no test partition is scored before",
+    "the results freeze. Earlier test-scored runs (R09, R10) are recorded as",
+    "test_scored=yes in T05_I1_runlog.csv; their test metrics are NOT recomputed.",
+    "",
+    "Calibration uses guard-context windows per revised Annex D6: a calibration",
+    "window may take earlier context from the guard, never from fit rows, and",
+    "only calibration points are scored (one window per cal point, right-aligned).",
+    "P-1 yields 319 calibration-point scores; C-1 yields 176. No boundary padding",
+    "is required (the guard supplies left context; every window ends at a cal point).",
     "",
 ]
 
@@ -453,62 +390,25 @@ for res in [res_p1, res_c1]:
         "-" * 65,
         f"  Model params     : {res['n_params']:,}",
         f"  Train length     : {res['T_train']}",
-        f"  Test  length     : {res['T_test']}",
-        f"  Fit  portion     : [0, {res['fit_end']})",
-        f"  Guard gap used   : {res['actual_guard']} steps"
-        + ("" if res['actual_guard'] == GUARD else f"  (reduced from {GUARD} — short stream)"),
-        f"  Cal  portion     : [{res['cal_start']}, {res['T_train']})",
-        f"  Fit mean / std   : {res['mu']:.6f} / {res['sig']:.6f}",
-        f"  Train windows    : {res['n_train_win']} (stride 64)",
-        f"  Cal windows      : {res['n_cal_win']} (stride 1)",
-        f"  Test windows     : {res['n_test_win']} (stride 1)",
-        f"  Stopped by       : {res['stop_reason']}",
-        f"  Elapsed          : {res['elapsed']:.2f}s ({res['elapsed']/60:.2f} min)",
-        f"  Cal threshold    : {res['threshold']:.6f}  (99th pctile of cal-win MSE)",
+        f"  Fit  portion      : [0, {res['fit_end']})",
+        f"  Guard gap         : {GUARD} steps  [{res['fit_end']}, {res['cal_start']})",
+        f"  Cal  portion      : [{res['cal_start']}, {res['T_train']})  "
+        f"({res['n_cal']} cal steps)",
+        f"  Fit mean / std    : {res['mu']:.6f} / {res['sig']:.6f}",
+        f"  Train windows      : {res['n_train_win']} (stride 64)",
+        f"  Cal windows        : {res['n_cal_win']} (one per cal point, guard-context)",
+        f"  Stopped by        : {res['stop_reason']}",
+        f"  Elapsed           : {res['elapsed']:.2f}s ({res['elapsed']/60:.2f} min)",
+        f"  Cal point scores  : {res['n_cal']}",
+        f"  Cal threshold     : {res['threshold']:.6f}  (99th pctile of cal-point MSE)",
+        f"  Cal alarm count   : {res['cal_alarms']}/{res['n_cal']}",
+        f"  Cal alarm rate    : {100*res['cal_rate']:.2f}%",
         "",
-        "  Training history:",
+        "  Training history (train MSE / val_cal mean MSE per epoch):",
     ]
     for ep, tl, vl in res["history"]:
         lines.append(f"    Epoch {ep:02d}: train={tl:.6f}  val_cal={vl:.6f}")
-    lines += [
-        "",
-        "  ── PRIMARY (unadjusted point-level) ──",
-        f"  Precision : {res['prec']:.4f}",
-        f"  Recall    : {res['rec']:.4f}",
-        f"  F1        : {res['f1']:.4f}",
-        "",
-        "  ── AUDIT ONLY (point-adjusted) ──",
-        f"  Pt-adj F1 : {res['pa_f1']:.4f}",
-        "",
-    ]
-
-# Comparison table
-lines += [
-    "=" * 65,
-    "Comparison vs Classical Baselines",
-    "=" * 65,
-    "",
-    "SMAP P-1:",
-    f"  {'Method':<25}  {'Unadj F1':>10}  {'Pt-adj F1':>10}",
-    f"  {'-'*25}  {'-'*10}  {'-'*10}",
-    f"  {'Isolation Forest':<25}  {0.2728:>10.4f}  {0.3391:>10.4f}",
-    f"  {'PCA (5 components)':<25}  {0.3833:>10.4f}  {0.6821:>10.4f}",
-    f"  {'Trivial (mean dist)':<25}  {0.2247:>10.4f}  {0.2565:>10.4f}",
-    f"  {'Conv1dAutoencoder':<25}  {res_p1['f1']:>10.4f}  {res_p1['pa_f1']:>10.4f}",
-    "",
-    "MSL C-1:",
-    f"  {'Method':<25}  {'Unadj F1':>10}  {'Pt-adj F1':>10}",
-    f"  {'-'*25}  {'-'*10}  {'-'*10}",
-    f"  {'Isolation Forest':<25}  {0.2597:>10.4f}  {0.2726:>10.4f}",
-    f"  {'PCA (4 components)':<25}  {0.2569:>10.4f}  {0.3128:>10.4f}",
-    f"  {'Trivial (mean dist)':<25}  {0.2967:>10.4f}  {0.3300:>10.4f}",
-    f"  {'Conv1dAutoencoder':<25}  {res_c1['f1']:>10.4f}  {res_c1['pa_f1']:>10.4f}",
-    "",
-    "─" * 65,
-    "Point-adjusted F1 is an AUDIT figure. Never used for threshold",
-    "selection or architectural decisions.",
-    "─" * 65,
-]
+    lines += [""]
 
 out_path = OUT / "smap_msl_results.txt"
 with open(out_path, "w") as f:
@@ -517,5 +417,5 @@ with open(out_path, "w") as f:
 print(f"\nResults saved to: {out_path}")
 print()
 print("=" * 65)
-print("Week 4 complete.")
+print("Week 4 complete (calibration only).")
 print("=" * 65)
