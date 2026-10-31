@@ -1,11 +1,15 @@
 run_id,date,commit,component,condition,seed,n_train,epochs,updates,stop_reason,elapsed_s,cpu_s,peak_mem_mb,threads,workers,trainable_params,val_metric,val_value,best_epoch,test_scored
 R01,2026-09-30,84ad0be,2d_spectrogram_autoencoder,opssat_nominal_only_reference,22,1019,30,960,30_epochs,29.18,77.08,420.09,6,0,18833,val_reconstruction_mse,0.000201,30,no
-R02,2026-10-12,384bca9,isolation_forest,opssat_nominal_only,22,1019,1,1,completed,0.05,0.05,not_measured,1,0,0,dev_alarm_rate_pct,1.18,1,no
-R03,2026-10-12,384bca9,pca_reconstruction,opssat_nominal_only,22,1019,1,1,completed,0.00,0.00,not_measured,1,0,0,dev_alarm_rate_pct,1.18,1,no
-R04,2026-10-12,384bca9,trivial_detector,opssat_nominal_only,22,1019,1,1,completed,0.00,0.00,not_measured,1,0,0,dev_alarm_rate_pct,1.18,1,no
-R05,2026-10-12,384bca9,1d_conv_autoencoder,opssat_nominal_only,22,1019,30,960,30_epochs,14.22,not_measured,not_measured,1,0,6353,val_reconstruction_mse,0.000082,30,no
-R06,2026-10-12,384bca9,2d_spectrogram_autoencoder,opssat_nominal_only,22,1019,30,960,30_epochs,20.79,not_measured,not_measured,1,0,18833,val_reconstruction_mse,0.000042,30,no
-R07,2026-10-12,384bca9,attention_autoencoder,opssat_nominal_only,22,1019,30,960,30_epochs,15.32,not_measured,not_measured,1,0,6370,val_reconstruction_mse,0.000790,28,no
-R08,2026-10-12,384bca9,fusion_1d_2d,opssat_nominal_only_fixed_w0.5,22,1019,0,0,score_fusion_no_training,0.50,not_measured,not_measured,1,0,0,dev_alarm_rate_pct,1.18,0,no
-R09,2026-10-12,384bca9,1d_conv_autoencoder,smap_p1_nominal_only,22,32,30,960,30_epochs,1.07,not_measured,not_measured,1,0,6353,val_cal_reconstruction_mse,0.336588,30,no
-R10,2026-10-12,384bca9,1d_conv_autoencoder,msl_c1_nominal_only,22,23,30,690,30_epochs,0.36,not_measured,not_measured,1,0,6353,val_cal_reconstruction_mse,0.089802,30,no
+R02,2026-10-12,384bca9,isolation_forest,opssat_nominal_only,22,1019,1,1,completed,0.05,0.05,not_measured,1,0,0,dev_alarm_rate_pct,1.18,1,yes
+R03,2026-10-12,384bca9,pca_reconstruction,opssat_nominal_only,22,1019,1,1,completed,0.00,0.00,not_measured,1,0,0,dev_alarm_rate_pct,1.18,1,yes
+R04,2026-10-12,384bca9,trivial_detector,opssat_nominal_only,22,1019,1,1,completed,0.00,0.00,not_measured,1,0,0,dev_alarm_rate_pct,1.18,1,yes
+R05,2026-10-12,384bca9,1d_conv_autoencoder,opssat_nominal_only,22,1019,30,960,30_epochs,14.22,not_measured,not_measured,1,0,6353,val_reconstruction_mse,0.000082,30,yes
+R06,2026-10-12,384bca9,2d_spectrogram_autoencoder,opssat_nominal_only,22,1019,30,960,30_epochs,20.79,not_measured,not_measured,1,0,18833,val_reconstruction_mse,0.000042,30,yes
+R07,2026-10-12,384bca9,attention_autoencoder,opssat_nominal_only,22,1019,30,960,30_epochs,15.32,not_measured,not_measured,1,0,6370,val_reconstruction_mse,0.000790,28,yes
+R08,2026-10-12,384bca9,fusion_1d_2d,opssat_nominal_only_fixed_w0.5,22,1019,0,0,score_fusion_no_training,0.50,not_measured,not_measured,1,0,0,dev_alarm_rate_pct,1.18,0,yes
+R09,2026-10-12,384bca9,1d_conv_autoencoder,smap_p1_nominal_only,22,32,30,960,30_epochs,1.07,not_measured,not_measured,1,0,6353,val_cal_reconstruction_mse,0.336588,30,yes
+R10,2026-10-12,384bca9,1d_conv_autoencoder,msl_c1_nominal_only,22,23,30,690,30_epochs,0.36,not_measured,not_measured,1,0,6353,val_cal_reconstruction_mse,0.089802,30,yes
+# Forward policy (from the 2026-11-04 checkpoint): test_scored=no for all future runs.
+# No test partition is scored again before the results freeze (revised Handout §14).
+# Each earlier test-scored run (R02-R10) recorded its test metric at the date above; at the freeze
+# every final detector is evaluated once more and the new result reported beside the earlier one.
