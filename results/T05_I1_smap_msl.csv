@@ -1,9 +1,9 @@
 sample_id,unit_id,partition,label,reason
-SMAP_P-1_train_fit_0_2296,SMAP_P-1,train,0,
-SMAP_P-1_guard_2297_2552,SMAP_P-1,excluded,0,guard_gap_256_steps_between_fit_and_calibration
-SMAP_P-1_cal_2553_2871,SMAP_P-1,val,0,
-SMAP_P-1_test_0_8504,SMAP_P-1,test,-1,point_labels_from_labeled_anomalies_csv
-MSL_C-1_train_fit_0_1725,MSL_C-1,train,0,
-MSL_C-1_guard_1726_1981,MSL_C-1,excluded,0,guard_gap_256_steps_between_fit_and_calibration
-MSL_C-1_cal_1982_2157,MSL_C-1,val,0,
-MSL_C-1_test_0_2263,MSL_C-1,test,-1,point_labels_from_labeled_anomalies_csv
+P-1:train:0-2297,P-1,train,,
+P-1:train:2297-2553,P-1,excluded,,guard
+P-1:train:2553-2872,P-1,val,,
+P-1:test:0-8505,P-1,test,,
+C-1:train:0-1726,C-1,train,,
+C-1:train:1726-1982,C-1,excluded,,guard
+C-1:train:1982-2158,C-1,val,,
+C-1:test:0-2264,C-1,test,,

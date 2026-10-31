@@ -52,8 +52,9 @@ def file_sha256(path: Path) -> str:
 #   - Within nominal training fragments, order segment IDs by SHA-256 of
 #     '22|<segment>' and reserve the first floor(20%) as nominal development.
 #   - Anomalous training fragments: unused in nominal-only core.
-#   - Sample ID: <segment_id>_<channel> (fragment level, one row per fragment)
-#   - Unit ID: <segment_id>
+#   - Sample ID (Handout §13): the segment ID only, e.g. "1" (not "1_CADC0872").
+#   - Unit ID: <segment_id>.
+#   - reason: "anomalous_train_unused" on excluded rows, "" on every other row.
 # ===========================================================================
 
 print("=" * 60)
@@ -99,15 +100,16 @@ for _, row in frag.iterrows():
     anom = int(row["anomaly"])
     in_train_side = row["train"] == "1"
 
-    sample_id = f"{sid}_{row['channel']}"
-    unit_id   = sid
+    # Handout §13: sample_id is the segment ID only (e.g. "1").
+    sample_id = str(sid)
+    unit_id   = str(sid)
 
     if in_train_side:
         if anom == 1:
             # Anomalous training — excluded from nominal-only core
             partition = "excluded"
             label     = 1
-            reason    = "anomalous_training_fragment_excluded_from_nominal_only_fit"
+            reason    = "anomalous_train_unused"
         elif sid in issued_dev_ids:
             partition = "val"
             label     = 0
@@ -157,8 +159,12 @@ print(f"Written: {opssat_path}")
 #   - Scoring uses 256-step windows, stride 1 for scoring (stride 64 for
 #     training).
 #   - The split-ID file records native index ranges, not one row per window.
-#   - Sample ID: <stream>_<start>_<end>  (range, inclusive)
-#   - Unit ID: <stream>
+#   - Sample ID (Handout §13): half-open range "<stream>:<file>:<start>-<end>",
+#     e.g. "P-1:train:0-2297" (fit), "P-1:train:2297-2553" (guard),
+#     "P-1:train:2553-2872" (cal), "P-1:test:0-8505" (test). End is exclusive.
+#   - Unit ID: "P-1" or "C-1".
+#   - label: empty string (labels are interval-based, held in labeled_anomalies.csv).
+#   - reason: "guard" on guard rows, "" everywhere else.
 # ===========================================================================
 
 print()
@@ -195,35 +201,36 @@ for stream_id, benchmark in STREAMS:
     print(f"  Cal  range [{cal_start}, {cal_end - 1}]  ({cal_end - cal_start} steps)")
     print(f"  Test range [0, {N_test - 1}]  ({N_test} steps)")
 
-    unit_id = f"{benchmark}_{stream_id}"
+    unit_id = stream_id   # Handout §13: "P-1" or "C-1"
 
+    # Half-open ranges "<stream>:<file>:<start>-<end>" (end exclusive)
     smap_rows.append({
-        "sample_id": f"{unit_id}_train_fit_0_{fit_end - 1}",
+        "sample_id": f"{stream_id}:train:0-{fit_end}",
         "unit_id":   unit_id,
         "partition": "train",
-        "label":     0,
+        "label":     "",
         "reason":    "",
     })
     smap_rows.append({
-        "sample_id": f"{unit_id}_guard_{fit_end}_{fit_end + GUARD - 1}",
+        "sample_id": f"{stream_id}:train:{fit_end}-{cal_start}",
         "unit_id":   unit_id,
         "partition": "excluded",
-        "label":     0,
-        "reason":    "guard_gap_256_steps_between_fit_and_calibration",
+        "label":     "",
+        "reason":    "guard",
     })
     smap_rows.append({
-        "sample_id": f"{unit_id}_cal_{cal_start}_{cal_end - 1}",
+        "sample_id": f"{stream_id}:train:{cal_start}-{cal_end}",
         "unit_id":   unit_id,
         "partition": "val",
-        "label":     0,
+        "label":     "",
         "reason":    "",
     })
     smap_rows.append({
-        "sample_id": f"{unit_id}_test_0_{N_test - 1}",
+        "sample_id": f"{stream_id}:test:0-{N_test}",
         "unit_id":   unit_id,
         "partition": "test",
-        "label":     -1,   # labels are intervals, not point-wise here
-        "reason":    "point_labels_from_labeled_anomalies_csv",
+        "label":     "",
+        "reason":    "",
     })
 
 smap_df = pd.DataFrame(smap_rows, columns=[
