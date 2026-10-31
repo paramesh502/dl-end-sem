@@ -118,6 +118,15 @@ p("Calibration rule (revised Annex D6): a calibration window may take earlier "
   "earlier C-1 implementation capped the guard at 176 and started calibration at "
   "step 1902 — that is removed; the guard is now always 256 and calibration starts "
   "at fit_end+256.")
+p("Preliminary core-experiment result: the nominal-development calibration above "
+  "(with its support — 254 OPSSAT-AD development fragments; 319 P-1 and 176 C-1 "
+  "calibration points) and an unscored inference pass (scripts/smoke_test.py, 11/11 "
+  "components pass; and the Week-1 reference run R01). No test partition is scored and "
+  "no test metric is computed; anomalous-class validation F1 is not required. P-1 "
+  "convergence is slow — validation (cal-point) reconstruction MSE falls from ~1.38 to "
+  "~0.36 over 30 epochs with only 32 training windows; C-1 converges from ~0.81 to "
+  "~0.09 (early stopped after no improvement for 5 epochs). Target point-F1 "
+  "evaluation waits for the results freeze (20 November 2026).")
 
 h2("3. Elapsed Time and 24-Hour Budget")
 p("Annex D0's stage to project for I1 is stride-1 scoring of P-1 and C-1. It was "
