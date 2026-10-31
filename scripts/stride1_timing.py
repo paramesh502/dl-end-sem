@@ -302,7 +302,8 @@ lines.append(f"  stride-1 subtotal : {stride1_total:.4f} s")
 # full 30-epoch stream fits are R09 (~3.1 s P-1) and R10 (~1.8 s C-1).
 opssat_fits = {"1-D AE (R05)": 14.22, "2-D AE (R06)": 20.79,
                "Attention AE (R07)": 15.32}
-stream_fit_full = {"P-1 1-D AE (R09)": 3.07, "C-1 1-D AE (R10)": 1.83}
+stream_fit_full = {"P-1 1-D AE (R09, calib. re-run)": 3.07,
+                   "C-1 1-D AE (R10, calib. re-run)": 1.83}
 fit_total = sum(opssat_fits.values()) + sum(stream_fit_full.values())
 lines.append("")
 lines.append("Required neural fits (actual recorded elapsed, T05_I1_runlog.csv):")
@@ -310,14 +311,16 @@ for k, v in opssat_fits.items():
     lines.append(f"  {k}: {v:.2f} s")
 for k, v in stream_fit_full.items():
     lines.append(f"  {k}: {v:.2f} s")
+lines.append(f"  (runlog R09/R10 record the original test-scored runs at 1.07/0.36 s;")
+lines.append(f"   the corrected-calibration re-runs are 3.07/1.83 s — both << 29 s.)")
 lines.append(f"  fusion (R08): score-level, no training (< 0.5 s)")
 lines.append(f"  classical fits (R02-R04 + streams): < 1 s each (negligible)")
 lines.append(f"  fit subtotal : {fit_total:.2f} s")
 lines.append("")
 lines.append("Stream-model timings establish the per-fit cost: stream 1-D AE fits are")
-lines.append(f"~1.8-3.1 s (R09/R10), NOT the 29.18 s of the Week-1 spectrogram reference")
-lines.append("fit (R01). The 29.18 s reference is the largest single fit; the OPSSAT")
-lines.append("fits (R05-R07) are 14-21 s. None of these approach a per-fit budget concern.")
+lines.append(f"~1-3 s (R09/R10 and their calibration re-runs), NOT the 29.18 s of the")
+lines.append("Week-1 spectrogram reference fit (R01). The 29.18 s reference is the largest")
+lines.append("single fit; the OPSSAT fits (R05-R07) are 14-21 s. None approach a budget concern.")
 
 prog_elapsed = fit_total + stride1_total
 hours = prog_elapsed / 3600.0

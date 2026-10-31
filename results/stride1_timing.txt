@@ -20,18 +20,18 @@ Stream P-1  (test steps = 8505)
   [NEURAL — 1-D autoencoder (proxy weights)]
     Window count          : 8505
     Point scores         : 8505
-    Construction time (s) : 0.0050
-    Inference time (s)    : 2.2447
-    Reduction time (s)   : 0.0102
-    TOTAL (s)            : 2.2598
+    Construction time (s) : 0.0055
+    Inference time (s)    : 2.2395
+    Reduction time (s)   : 0.0105
+    TOTAL (s)            : 2.2555
   [CLASSICAL — IsolationForest]
     Window count          : 8505
     Point scores         : 8505
-    Construction time (s) : 1.5095
-    Inference time (s)    : 0.0083
-    Reduction time (s)   : 0.0091
-    TOTAL (s)            : 1.5269
-    [IsoForest fit on fit windows: 0.0477 s, not in scoring total]
+    Construction time (s) : 1.5158
+    Inference time (s)    : 0.0081
+    Reduction time (s)   : 0.0093
+    TOTAL (s)            : 1.5332
+    [IsoForest fit on fit windows: 0.0463 s, not in scoring total]
 ------------------------------------------------------------------------
 Stream C-1  (test steps = 2264)
 ------------------------------------------------------------------------
@@ -39,45 +39,47 @@ Stream C-1  (test steps = 2264)
     Window count          : 2264
     Point scores         : 2264
     Construction time (s) : 0.0006
-    Inference time (s)    : 0.5943
-    Reduction time (s)   : 0.0027
-    TOTAL (s)            : 0.5976
+    Inference time (s)    : 0.5939
+    Reduction time (s)   : 0.0028
+    TOTAL (s)            : 0.5972
   [CLASSICAL — IsolationForest]
     Window count          : 2264
     Point scores         : 2264
-    Construction time (s) : 0.4034
-    Inference time (s)    : 0.0041
+    Construction time (s) : 0.4030
+    Inference time (s)    : 0.0042
     Reduction time (s)   : 0.0024
-    TOTAL (s)            : 0.4099
-    [IsoForest fit on fit windows: 0.0408 s, not in scoring total]
+    TOTAL (s)            : 0.4096
+    [IsoForest fit on fit windows: 0.0409 s, not in scoring total]
 
 ========================================================================
 Projection against the 24-hour budget
 ========================================================================
 Measured stride-1 scoring (P-1 + C-1, neural + classical controls):
-  P-1  neural  : 2.2598 s
-  C-1  neural  : 0.5976 s
-  P-1  classical: 1.5269 s
-  C-1  classical: 0.4099 s
-  stride-1 subtotal : 4.7942 s
+  P-1  neural  : 2.2555 s
+  C-1  neural  : 0.5972 s
+  P-1  classical: 1.5332 s
+  C-1  classical: 0.4096 s
+  stride-1 subtotal : 4.7956 s
 
 Required neural fits (actual recorded elapsed, T05_I1_runlog.csv):
   1-D AE (R05): 14.22 s
   2-D AE (R06): 20.79 s
   Attention AE (R07): 15.32 s
-  P-1 1-D AE (R09): 3.07 s
-  C-1 1-D AE (R10): 1.83 s
+  P-1 1-D AE (R09, calib. re-run): 3.07 s
+  C-1 1-D AE (R10, calib. re-run): 1.83 s
+  (runlog R09/R10 record the original test-scored runs at 1.07/0.36 s;
+   the corrected-calibration re-runs are 3.07/1.83 s — both << 29 s.)
   fusion (R08): score-level, no training (< 0.5 s)
   classical fits (R02-R04 + streams): < 1 s each (negligible)
   fit subtotal : 55.23 s
 
 Stream-model timings establish the per-fit cost: stream 1-D AE fits are
-~1.8-3.1 s (R09/R10), NOT the 29.18 s of the Week-1 spectrogram reference
-fit (R01). The 29.18 s reference is the largest single fit; the OPSSAT
-fits (R05-R07) are 14-21 s. None of these approach a per-fit budget concern.
+~1-3 s (R09/R10 and their calibration re-runs), NOT the 29.18 s of the
+Week-1 spectrogram reference fit (R01). The 29.18 s reference is the largest
+single fit; the OPSSAT fits (R05-R07) are 14-21 s. None approach a budget concern.
 
 Programme projection (fits + stride-1 scoring):
-  fits + stride-1 scoring = 55.23 + 4.7942 = 60.02 s
+  fits + stride-1 scoring = 55.23 + 4.7956 = 60.03 s
                          = 0.0167 h  (0.0695% of 24 h)
   24 h budget = 86400 s; margin = 86340 s
 
@@ -88,7 +90,7 @@ windows) completes in ~60 s, well within the 24-hour budget
 as 29.18 s (the spectrogram reference upper bound), the 5
 required neural fits would still take only
   5 x 29.18 = 145.9 s,
-plus 4.79 s of stride-1 scoring = 150.7 s, still ~0.174% of 24 h.
+plus 4.80 s of stride-1 scoring = 150.7 s, still ~0.174% of 24 h.
 
 No test labels were loaded and no test metric was computed for this timing.
 ========================================================================
