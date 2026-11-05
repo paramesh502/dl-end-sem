@@ -2,20 +2,20 @@
 ============================================================
   Loading data
 ============================================================
-  ✓  data_loading  |  samples=110  |  1.06s
+  ✓  data_loading  |  samples=110  |  1.02s
 
 ============================================================
   Non-DL Baselines
 ============================================================
-  ✓  isolation_forest  |  samples=60  |  0.05s
-  ✓  pca_reconstruction  |  samples=60  |  0.02s
+  ✓  isolation_forest  |  samples=60  |  0.04s
+  ✓  pca_reconstruction  |  samples=60  |  0.00s
   ✓  trivial_detector  |  samples=60  |  0.00s
 
 ============================================================
   1-D Convolutional Autoencoder
 ============================================================
   Params: 6,353
-  ✓  1d_conv_autoencoder  |  samples=60  |  0.21s
+  ✓  1d_conv_autoencoder  |  samples=60  |  0.17s
 
 ============================================================
   2-D Spectrogram Autoencoder
@@ -28,16 +28,16 @@
   Temporal Attention Autoencoder (+ ablation)
 ============================================================
   Attention params: 6,370  (base=6,353, diff=17)
-  ✓  attention_autoencoder  |  samples=60  |  0.12s
+  ✓  attention_autoencoder  |  samples=60  |  0.11s
   Ablation: no-attention 1-D AE already run above (run R05, val_mse=0.000082)
-  ✓  attention_ablation_comparison  |  samples=60  |  0.12s
+  ✓  attention_ablation_comparison  |  samples=60  |  0.11s
 
 ============================================================
   Fusion (1D + 2D, w=0.5)
 ============================================================
   Fusion threshold (99th pctile dev): 0.9352
   NOTE: test metric NOT computed (smoke test — no test scoring)
-  ✓  fusion_1d_2d  |  samples=50  |  0.03s
+  ✓  fusion_1d_2d  |  samples=50  |  0.02s
 
 ============================================================
   Core Experiment 1 preliminary — OPSSAT-AD (dev/val only)
@@ -60,12 +60,12 @@
     R09 P-1  val_cal_mse=0.336588  (source-val only)
     R10 C-1  val_cal_mse=0.089802  (source-val only)
   NOTE: Target evaluation waits for results freeze (per checkpoint instructions).
-  ✓  core_exp2_smap_msl_preliminary  |  samples=16  |  0.06s
+  ✓  core_exp2_smap_msl_preliminary  |  samples=16  |  0.02s
 
 ============================================================
 SMOKE TEST SUMMARY
 ============================================================
-  Total elapsed : 4.3s  (0.07 min)
+  Total elapsed : 3.9s  (0.06 min)
   Passed : 11
     ✓  data_loading
     ✓  isolation_forest
