@@ -127,26 +127,84 @@ def extract_windows(series: np.ndarray, window: int, stride: int) -> np.ndarray:
 # =============================================================================
 # Helper: guard-context calibration windows (one per cal point, right-aligned)
 # =============================================================================
-def cal_context_windows(series_z: np.ndarray, fit_end: int,
-                         cal_start: int, cal_end: int,
-                         window: int = WINDOW) -> np.ndarray:
+def cal_point_mse_neural(model: nn.Module, series_z: np.ndarray,
+                          fit_end: int, cal_start: int, cal_end: int,
+                          window: int = WINDOW) -> np.ndarray:
     """
-    Revised Annex D6 calibration rule:
-      - One window per calibration point, right-aligned (the window ends at the
-        point, which it scores at its right edge).
-      - The window may take earlier context from the GUARD, never from fit rows
-        (the left edge is always >= fit_end+1 > fit_end).
-      - No padding is required: the guard supplies left context for the earliest
-        calibration points, and every window ends at a calibration point inside
-        the training stream.
-    Returns (N_cal, window) array of windows (319 for P-1, 176 for C-1).
+    Annex D6 (corrected per 14-Nov-2026 email): score each calibration point
+    by the MEAN SQUARED RECONSTRUCTION ERROR AT THAT POINT, averaged over all
+    windows that cover it.
+
+    For cal point p, the covering windows are those whose start index s satisfies:
+        max(fit_end, p - window + 1)  <=  s  <=  p
+    (s >= fit_end: guard context allowed, fit rows never entered)
+    (s <= p: the window [s, s+window) covers position p)
+
+    Every cal point is covered by exactly (p - max(fit_end, p-window+1) + 1) windows,
+    which equals min(window, p - fit_end) windows.  For the first cal point
+    (p = cal_start = fit_end + guard = fit_end + 256), this is exactly 256 windows.
+
+    Returns: (N_cal,) float32 — one mean-over-covering-windows score per cal point.
     """
-    wins = []
-    for p in range(cal_start, cal_end):
-        start = p - window + 1
-        assert start >= fit_end, "calibration window must not enter fit rows"
-        wins.append(series_z[start:p + 1])
-    return np.stack(wins, axis=0)
+    model.eval()
+    cal_scores = np.zeros(cal_end - cal_start, dtype=np.float64)
+    cal_counts = np.zeros(cal_end - cal_start, dtype=np.int64)
+
+    # Slide every window that starts in [fit_end, cal_end) and covers at
+    # least one cal point.  stride=1 for scoring.
+    with torch.no_grad():
+        for s in range(fit_end, cal_end):
+            w_end = s + window
+            if w_end > len(series_z):
+                break  # window runs off the end of the training stream
+            win  = torch.tensor(series_z[s:w_end][None, None, :], dtype=torch.float32)
+            recon = model(win)
+            # Reconstruction error at each position
+            err_per_pos = ((recon - win) ** 2).squeeze().numpy()  # (256,)
+            # Which cal points does this window cover?
+            cov_start = max(cal_start, s)
+            cov_end   = min(cal_end, s + window)
+            for p in range(cov_start, cov_end):
+                pos_in_win = p - s
+                cal_idx    = p - cal_start
+                cal_scores[cal_idx] += err_per_pos[pos_in_win]
+                cal_counts[cal_idx] += 1
+
+    assert (cal_counts > 0).all(), "Some cal point was not covered by any window"
+    return (cal_scores / cal_counts).astype(np.float32)
+
+
+def cal_point_scores_classical(detector_score_fn,
+                                series_z: np.ndarray,
+                                fit_end: int, cal_start: int, cal_end: int,
+                                window: int = WINDOW) -> np.ndarray:
+    """
+    Same covering-window average for classical detectors.
+
+    detector_score_fn: takes a (1, N_features) array, returns a scalar score
+                       for one window (after standardisation applied outside).
+
+    For each window [s, s+window), compute the detector's window score, then
+    accumulate that score into every cal point the window covers.
+
+    Returns: (N_cal,) float64 — mean detector window score per cal point.
+    """
+    cal_scores = np.zeros(cal_end - cal_start, dtype=np.float64)
+    cal_counts = np.zeros(cal_end - cal_start, dtype=np.int64)
+
+    for s in range(fit_end, cal_end):
+        w_end = s + window
+        if w_end > len(series_z):
+            break
+        win_score = detector_score_fn(series_z[s:w_end])
+        cov_start = max(cal_start, s)
+        cov_end   = min(cal_end, s + window)
+        for p in range(cov_start, cov_end):
+            cal_scores[p - cal_start] += win_score
+            cal_counts[p - cal_start] += 1
+
+    assert (cal_counts > 0).all()
+    return (cal_scores / cal_counts).astype(np.float64)
 
 
 # =============================================================================
@@ -205,11 +263,10 @@ def run_stream(name: str, train_npy: Path):
 
     # ── 4. Window extraction ─────────────────────────────────────────────
     win_fit = extract_windows(train_z[:fit_end], WINDOW, TRAIN_STRIDE)  # stride-64
-    win_cal = cal_context_windows(train_z, fit_end, cal_start, cal_end)  # guard-context
-    assert win_cal.shape[0] == n_cal, (win_cal.shape[0], n_cal)
 
     print(f"  Fit windows  : {win_fit.shape}  (stride {TRAIN_STRIDE})")
-    print(f"  Cal windows  : {win_cal.shape}  (one per cal point, guard-context)")
+    print(f"  Cal scoring  : mean-over-covering-windows per point")
+    print(f"                 guard context allowed; fit rows never entered")
 
     # ── 5. Reproducibility seed ──────────────────────────────────────────
     torch.manual_seed(SEED)
@@ -264,9 +321,8 @@ def run_stream(name: str, train_npy: Path):
             tr_loss_sum += loss.item() * len(batch)
         tr_loss = tr_loss_sum / len(win_fit)
 
-        # Validation proxy: mean reconstruction MSE over the guard-context
-        # calibration windows (only calibration points are scored).
-        val_scores = score_windows(model, win_cal)
+        # Validation proxy: mean cal-point score using covering-window mean.
+        val_scores = cal_point_mse_neural(model, train_z, fit_end, cal_start, cal_end)
         val_loss   = float(val_scores.mean())
 
         elapsed = time.perf_counter() - t0
@@ -295,16 +351,23 @@ def run_stream(name: str, train_npy: Path):
     print(f"  Best val loss : {best_loss:.6f}")
     print(f"  Total elapsed : {elapsed_total:.2f}s ({elapsed_total/60:.2f} min)")
 
-    # ── 9. Calibration threshold (revised Annex D6) ───────────────────────
-    # One score per calibration point (guard-context window ending at the point).
-    cal_point_scores = score_windows(model, win_cal)        # (N_cal,) per-point MSE
-    threshold = float(np.percentile(cal_point_scores, THRESHOLD_PCT))
+    # ── 9. Calibration threshold (Annex D6, corrected 14-Nov-2026) ───────
+    # Score each cal point by the mean reconstruction error AT THAT POINT
+    # averaged over all windows covering it (guard context allowed, fit rows never).
+    print(f"\n  Computing calibration point scores (mean-over-covering-windows) …")
+    t_cal = time.perf_counter()
+    cal_point_scores = cal_point_mse_neural(
+        model, train_z, fit_end, cal_start, cal_end)   # (N_cal,)
+    t_cal = time.perf_counter() - t_cal
+    assert len(cal_point_scores) == n_cal
+    threshold  = float(np.percentile(cal_point_scores, THRESHOLD_PCT))
     cal_alarms = int((cal_point_scores >= threshold).sum())
-    cal_rate = cal_alarms / n_cal
+    cal_rate   = cal_alarms / n_cal
     print(f"\n  Cal point scores        : {n_cal}")
     print(f"  Cal threshold (99th pct) : {threshold:.6f}")
     print(f"  Cal alarm count / rate  : {cal_alarms}/{n_cal} = {100*cal_rate:.2f}%")
-    print(f"  (Per revised §14, the test stream is NOT scored here.)")
+    print(f"  Cal scoring time        : {t_cal:.2f}s")
+    print(f"  (Per §14, the test stream is NOT scored here.)")
 
     return {
         "name":          name,
@@ -322,8 +385,8 @@ def run_stream(name: str, train_npy: Path):
         "fit_end":       fit_end,
         "cal_start":     cal_start,
         "n_train_win":   len(win_fit),
-        "n_cal_win":     len(win_cal),
         "best_loss":     best_loss,
+        "cal_scoring_time": t_cal,
     }
 
 
@@ -375,11 +438,10 @@ lines += [
     "the results freeze. Earlier test-scored runs (R09, R10) are recorded as",
     "test_scored=yes in T05_I1_runlog.csv; their test metrics are NOT recomputed.",
     "",
-    "Calibration uses guard-context windows per revised Annex D6: a calibration",
-    "window may take earlier context from the guard, never from fit rows, and",
-    "only calibration points are scored (one window per cal point, right-aligned).",
-    "P-1 yields 319 calibration-point scores; C-1 yields 176. No boundary padding",
-    "is required (the guard supplies left context; every window ends at a cal point).",
+    "Calibration uses covering-window mean per revised Annex D6 (corrected 2026-11-14):",
+    "each cal point is scored by the mean reconstruction error AT THAT POINT",
+    "averaged over all windows that cover it, using guard context but never fit rows.",
+    "P-1: 319 cal-point scores; C-1: 176 cal-point scores.",
     "",
 ]
 
@@ -396,9 +458,11 @@ for res in [res_p1, res_c1]:
         f"({res['n_cal']} cal steps)",
         f"  Fit mean / std    : {res['mu']:.6f} / {res['sig']:.6f}",
         f"  Train windows      : {res['n_train_win']} (stride 64)",
-        f"  Cal windows        : {res['n_cal_win']} (one per cal point, guard-context)",
+        f"  Cal scoring        : mean-over-covering-windows per point (corrected 2026-11-14)",
+        f"                       guard context allowed; fit rows never entered",
         f"  Stopped by        : {res['stop_reason']}",
         f"  Elapsed           : {res['elapsed']:.2f}s ({res['elapsed']/60:.2f} min)",
+        f"  Cal scoring time  : {res['cal_scoring_time']:.2f}s",
         f"  Cal point scores  : {res['n_cal']}",
         f"  Cal threshold     : {res['threshold']:.6f}  (99th pctile of cal-point MSE)",
         f"  Cal alarm count   : {res['cal_alarms']}/{res['n_cal']}",

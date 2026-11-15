@@ -7,11 +7,10 @@ Calibration only (revised Handout §14): no test partition is scored before
 the results freeze. Earlier test-scored runs (R09, R10) are recorded as
 test_scored=yes in T05_I1_runlog.csv; their test metrics are NOT recomputed.
 
-Calibration uses guard-context windows per revised Annex D6: a calibration
-window may take earlier context from the guard, never from fit rows, and
-only calibration points are scored (one window per cal point, right-aligned).
-P-1 yields 319 calibration-point scores; C-1 yields 176. No boundary padding
-is required (the guard supplies left context; every window ends at a cal point).
+Calibration uses covering-window mean per revised Annex D6 (corrected 2026-11-14):
+each cal point is scored by the mean reconstruction error AT THAT POINT
+averaged over all windows that cover it, using guard context but never fit rows.
+P-1: 319 cal-point scores; C-1: 176 cal-point scores.
 
 -----------------------------------------------------------------
 Stream : SMAP P-1
@@ -23,45 +22,47 @@ Stream : SMAP P-1
   Cal  portion      : [2553, 2872)  (319 cal steps)
   Fit mean / std    : -0.431109 / 0.392837
   Train windows      : 32 (stride 64)
-  Cal windows        : 319 (one per cal point, guard-context)
+  Cal scoring        : mean-over-covering-windows per point (corrected 2026-11-14)
+                       guard context allowed; fit rows never entered
   Stopped by        : completed all epochs
-  Elapsed           : 3.07s (0.05 min)
+  Elapsed           : 2.59s (0.04 min)
+  Cal scoring time  : 0.06s
   Cal point scores  : 319
-  Cal threshold     : 0.450251  (99th pctile of cal-point MSE)
+  Cal threshold     : 1.995969  (99th pctile of cal-point MSE)
   Cal alarm count   : 4/319
   Cal alarm rate    : 1.25%
 
   Training history (train MSE / val_cal mean MSE per epoch):
-    Epoch 01: train=1.038760  val_cal=1.380844
-    Epoch 02: train=1.030012  val_cal=1.369111
-    Epoch 03: train=1.021538  val_cal=1.357567
-    Epoch 04: train=1.013200  val_cal=1.345859
-    Epoch 05: train=1.004751  val_cal=1.333066
-    Epoch 06: train=0.995862  val_cal=1.318273
-    Epoch 07: train=0.985818  val_cal=1.300970
-    Epoch 08: train=0.973938  val_cal=1.281021
-    Epoch 09: train=0.959910  val_cal=1.258232
-    Epoch 10: train=0.943881  val_cal=1.232432
-    Epoch 11: train=0.925860  val_cal=1.203747
-    Epoch 12: train=0.905882  val_cal=1.172278
-    Epoch 13: train=0.883805  val_cal=1.137761
-    Epoch 14: train=0.859432  val_cal=1.100028
-    Epoch 15: train=0.832647  val_cal=1.058721
-    Epoch 16: train=0.803377  val_cal=1.013566
-    Epoch 17: train=0.771393  val_cal=0.964360
-    Epoch 18: train=0.736520  val_cal=0.911178
-    Epoch 19: train=0.698860  val_cal=0.854528
-    Epoch 20: train=0.658797  val_cal=0.795303
-    Epoch 21: train=0.616883  val_cal=0.734747
-    Epoch 22: train=0.573996  val_cal=0.674584
-    Epoch 23: train=0.531276  val_cal=0.617161
-    Epoch 24: train=0.490069  val_cal=0.564924
-    Epoch 25: train=0.452042  val_cal=0.519751
-    Epoch 26: train=0.418519  val_cal=0.482110
-    Epoch 27: train=0.389824  val_cal=0.450236
-    Epoch 28: train=0.364595  val_cal=0.420700
-    Epoch 29: train=0.340949  val_cal=0.391511
-    Epoch 30: train=0.317868  val_cal=0.364416
+    Epoch 01: train=1.038760  val_cal=1.279190
+    Epoch 02: train=1.030012  val_cal=1.268196
+    Epoch 03: train=1.021538  val_cal=1.257564
+    Epoch 04: train=1.013200  val_cal=1.246818
+    Epoch 05: train=1.004751  val_cal=1.235302
+    Epoch 06: train=0.995862  val_cal=1.222164
+    Epoch 07: train=0.985818  val_cal=1.206154
+    Epoch 08: train=0.973938  val_cal=1.187631
+    Epoch 09: train=0.959910  val_cal=1.166548
+    Epoch 10: train=0.943881  val_cal=1.142706
+    Epoch 11: train=0.925860  val_cal=1.116347
+    Epoch 12: train=0.905882  val_cal=1.087413
+    Epoch 13: train=0.883805  val_cal=1.055555
+    Epoch 14: train=0.859432  val_cal=1.020806
+    Epoch 15: train=0.832647  val_cal=0.982897
+    Epoch 16: train=0.803377  val_cal=0.941510
+    Epoch 17: train=0.771393  val_cal=0.896590
+    Epoch 18: train=0.736520  val_cal=0.848230
+    Epoch 19: train=0.698860  val_cal=0.796912
+    Epoch 20: train=0.658797  val_cal=0.743556
+    Epoch 21: train=0.616883  val_cal=0.689272
+    Epoch 22: train=0.573996  val_cal=0.635775
+    Epoch 23: train=0.531276  val_cal=0.585133
+    Epoch 24: train=0.490069  val_cal=0.539403
+    Epoch 25: train=0.452042  val_cal=0.500145
+    Epoch 26: train=0.418519  val_cal=0.467357
+    Epoch 27: train=0.389824  val_cal=0.438729
+    Epoch 28: train=0.364595  val_cal=0.410585
+    Epoch 29: train=0.340949  val_cal=0.381310
+    Epoch 30: train=0.317868  val_cal=0.353130
 
 -----------------------------------------------------------------
 Stream : MSL C-1
@@ -73,43 +74,45 @@ Stream : MSL C-1
   Cal  portion      : [1982, 2158)  (176 cal steps)
   Fit mean / std    : -0.681741 / 0.447685
   Train windows      : 23 (stride 64)
-  Cal windows        : 176 (one per cal point, guard-context)
-  Stopped by        : early stopping (no improvement for 5 epochs)
-  Elapsed           : 1.83s (0.03 min)
+  Cal scoring        : mean-over-covering-windows per point (corrected 2026-11-14)
+                       guard context allowed; fit rows never entered
+  Stopped by        : completed all epochs
+  Elapsed           : 1.38s (0.02 min)
+  Cal scoring time  : 0.05s
   Cal point scores  : 176
-  Cal threshold     : 0.129134  (99th pctile of cal-point MSE)
+  Cal threshold     : 0.513500  (99th pctile of cal-point MSE)
   Cal alarm count   : 2/176
   Cal alarm rate    : 1.14%
 
   Training history (train MSE / val_cal mean MSE per epoch):
-    Epoch 01: train=0.925970  val_cal=0.811688
-    Epoch 02: train=0.916578  val_cal=0.800951
-    Epoch 03: train=0.907810  val_cal=0.790345
-    Epoch 04: train=0.899222  val_cal=0.779228
-    Epoch 05: train=0.889793  val_cal=0.767007
-    Epoch 06: train=0.878520  val_cal=0.753305
-    Epoch 07: train=0.864587  val_cal=0.737598
-    Epoch 08: train=0.848046  val_cal=0.719286
-    Epoch 09: train=0.828874  val_cal=0.698297
-    Epoch 10: train=0.806891  val_cal=0.674130
-    Epoch 11: train=0.781573  val_cal=0.646797
-    Epoch 12: train=0.754029  val_cal=0.616515
-    Epoch 13: train=0.724071  val_cal=0.583071
-    Epoch 14: train=0.690366  val_cal=0.546526
-    Epoch 15: train=0.652743  val_cal=0.506599
-    Epoch 16: train=0.610945  val_cal=0.463396
-    Epoch 17: train=0.564845  val_cal=0.417133
-    Epoch 18: train=0.514861  val_cal=0.368652
-    Epoch 19: train=0.462277  val_cal=0.318263
-    Epoch 20: train=0.407367  val_cal=0.267041
-    Epoch 21: train=0.351059  val_cal=0.216741
-    Epoch 22: train=0.295095  val_cal=0.170004
-    Epoch 23: train=0.242151  val_cal=0.130434
-    Epoch 24: train=0.195919  val_cal=0.102451
-    Epoch 25: train=0.160955  val_cal=0.090493
-    Epoch 26: train=0.142161  val_cal=0.095528
-    Epoch 27: train=0.140981  val_cal=0.110646
-    Epoch 28: train=0.151552  val_cal=0.122383
-    Epoch 29: train=0.161215  val_cal=0.120977
-    Epoch 30: train=0.160332  val_cal=0.105071
+    Epoch 01: train=0.925970  val_cal=0.412990
+    Epoch 02: train=0.916578  val_cal=0.410683
+    Epoch 03: train=0.907810  val_cal=0.408213
+    Epoch 04: train=0.899222  val_cal=0.405657
+    Epoch 05: train=0.889793  val_cal=0.402606
+    Epoch 06: train=0.878520  val_cal=0.398759
+    Epoch 07: train=0.864587  val_cal=0.393953
+    Epoch 08: train=0.848046  val_cal=0.388020
+    Epoch 09: train=0.828874  val_cal=0.380750
+    Epoch 10: train=0.806891  val_cal=0.371942
+    Epoch 11: train=0.781573  val_cal=0.361941
+    Epoch 12: train=0.754029  val_cal=0.350554
+    Epoch 13: train=0.724071  val_cal=0.337207
+    Epoch 14: train=0.690366  val_cal=0.321867
+    Epoch 15: train=0.652743  val_cal=0.304564
+    Epoch 16: train=0.610945  val_cal=0.285310
+    Epoch 17: train=0.564845  val_cal=0.264258
+    Epoch 18: train=0.514861  val_cal=0.242650
+    Epoch 19: train=0.462277  val_cal=0.220298
+    Epoch 20: train=0.407367  val_cal=0.197368
+    Epoch 21: train=0.351059  val_cal=0.174244
+    Epoch 22: train=0.295095  val_cal=0.151753
+    Epoch 23: train=0.242151  val_cal=0.131052
+    Epoch 24: train=0.195919  val_cal=0.113575
+    Epoch 25: train=0.160955  val_cal=0.101263
+    Epoch 26: train=0.142161  val_cal=0.094714
+    Epoch 27: train=0.140981  val_cal=0.091413
+    Epoch 28: train=0.151552  val_cal=0.087260
+    Epoch 29: train=0.161215  val_cal=0.079327
+    Epoch 30: train=0.160332  val_cal=0.067453
 
