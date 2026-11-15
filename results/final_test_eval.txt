@@ -1,0 +1,177 @@
+======================================================================
+FINAL TEST EVALUATION — OPSSAT-AD
+Team 05, Card I1
+Date: 2026-11-15
+======================================================================
+
+Test set inspected earlier on 2026-10-12 (R02-R08). Final evaluation on 2026-11-15. Thresholds were locked on validation evidence before this run.
+
+Test set: 529 fragments (113 anomalous, 416 nominal)
+Nominal fitting set: 1019 fragments
+Nominal dev set: 254 fragments
+
+Training standardisation: mean=0.129194  std=0.285037  (locked, computed from X_fit)
+  Verified against locked values: mean=0.129194  std=0.285037  — MATCH
+
+======================================================================
+MODEL: Isolation Forest
+  Locked threshold: 0.201592
+  Earlier test-scored result (2026-10-12, R02-R08): F1=0.0164  P=0.0161
+  Final result (2026-11-15):
+    Precision : 0.1111
+    Recall    : 0.0088
+    F1        : 0.0164
+    TP=1  FP=8  TN=408  FN=112
+    Support   : 113 anomalous / 416 nominal
+
+  Per-length analysis (original fragment length before resampling):
+           Bin     TP     FP     TN     FN      N
+  -----------------------------------------------
+        [8,50)      1      8    175     24    208
+      [50,100)      0      0     83      7     90
+     [100,200)      0      0     66     29     95
+     [200,500)      0      0     74     38    112
+    [500,1041)      0      0     10     14     24
+
+======================================================================
+MODEL: PCA Reconstruction
+  Locked threshold: 0.030605
+  Earlier test-scored result (2026-10-12, R02-R08): F1=0.0630
+  Final result (2026-11-15):
+    Precision : 0.2857
+    Recall    : 0.0354
+    F1        : 0.0630
+    TP=4  FP=10  TN=406  FN=109
+    Support   : 113 anomalous / 416 nominal
+
+  Per-length analysis (original fragment length before resampling):
+           Bin     TP     FP     TN     FN      N
+  -----------------------------------------------
+        [8,50)      3      0    183     22    208
+      [50,100)      0     10     73      7     90
+     [100,200)      1      0     66     28     95
+     [200,500)      0      0     74     38    112
+    [500,1041)      0      0     10     14     24
+
+======================================================================
+MODEL: Trivial Detector
+  Locked threshold: 3.410388
+  Earlier test-scored result (2026-10-12, R02-R08): F1=0.0164
+  Final result (2026-11-15):
+    Precision : 0.1111
+    Recall    : 0.0088
+    F1        : 0.0164
+    TP=1  FP=8  TN=408  FN=112
+    Support   : 113 anomalous / 416 nominal
+
+  Per-length analysis (original fragment length before resampling):
+           Bin     TP     FP     TN     FN      N
+  -----------------------------------------------
+        [8,50)      1      8    175     24    208
+      [50,100)      0      0     83      7     90
+     [100,200)      0      0     66     29     95
+     [200,500)      0      0     74     38    112
+    [500,1041)      0      0     10     14     24
+
+======================================================================
+MODEL: 1-D Autoencoder
+  Locked threshold: 0.000581
+  Earlier test-scored result (2026-10-12, R02-R08): F1=0.1417  P=0.6429  R=0.0796
+  Final result (2026-11-15):
+    Precision : 0.6429
+    Recall    : 0.0796
+    F1        : 0.1417
+    TP=9  FP=5  TN=411  FN=104
+    Support   : 113 anomalous / 416 nominal
+
+  Per-length analysis (original fragment length before resampling):
+           Bin     TP     FP     TN     FN      N
+  -----------------------------------------------
+        [8,50)      7      0    183     18    208
+      [50,100)      1      1     82      6     90
+     [100,200)      0      0     66     29     95
+     [200,500)      1      4     70     37    112
+    [500,1041)      0      0     10     14     24
+
+======================================================================
+MODEL: 2-D Spectrogram Autoencoder
+  Locked threshold: 0.000355
+  Earlier test-scored result (2026-10-12, R02-R08): F1=0.1311  P=0.8889  R=0.0708
+  Final result (2026-11-15):
+    Precision : 0.8889
+    Recall    : 0.0708
+    F1        : 0.1311
+    TP=8  FP=1  TN=415  FN=105
+    Support   : 113 anomalous / 416 nominal
+
+  Per-length analysis (original fragment length before resampling):
+           Bin     TP     FP     TN     FN      N
+  -----------------------------------------------
+        [8,50)      4      0    183     21    208
+      [50,100)      1      0     83      6     90
+     [100,200)      0      0     66     29     95
+     [200,500)      3      1     73     35    112
+    [500,1041)      0      0     10     14     24
+
+======================================================================
+MODEL: Attention Autoencoder
+  Locked threshold: 0.010338
+  Earlier test-scored result (2026-10-12, R02-R08): F1=0.0480  P=0.2500  R=0.0265
+  Final result (2026-11-15):
+    Precision : 0.2500
+    Recall    : 0.0265
+    F1        : 0.0480
+    TP=3  FP=9  TN=407  FN=110
+    Support   : 113 anomalous / 416 nominal
+  Ablation comparison (vs 1-D AE, no-attention): 1-D AE F1=0.1417  Attention F1=0.0480  delta=-0.0937
+
+  Per-length analysis (original fragment length before resampling):
+           Bin     TP     FP     TN     FN      N
+  -----------------------------------------------
+        [8,50)      3      9    174     22    208
+      [50,100)      0      0     83      7     90
+     [100,200)      0      0     66     29     95
+     [200,500)      0      0     74     38    112
+    [500,1041)      0      0     10     14     24
+
+======================================================================
+MODEL: Fusion (1D+2D)
+  Locked threshold: 3.977751
+  Earlier test-scored result (2026-10-12, R02-R08): F1=0.1875  P=0.8000  R=0.1062
+  Final result (2026-11-15):
+    Precision : 0.8000
+    Recall    : 0.1062
+    F1        : 0.1875
+    TP=12  FP=3  TN=413  FN=101
+    Support   : 113 anomalous / 416 nominal
+  Fusion formula: 0.5*(score_1d-5e-06)/0.000141 + 0.5*(score_2d-0.0)/6.7e-05
+  Normalisation constants locked from fusion_results.txt (dev evidence only).
+
+  Per-length analysis (original fragment length before resampling):
+           Bin     TP     FP     TN     FN      N
+  -----------------------------------------------
+        [8,50)      8      0    183     17    208
+      [50,100)      1      1     82      6     90
+     [100,200)      0      0     66     29     95
+     [200,500)      3      2     72     35    112
+    [500,1041)      0      0     10     14     24
+
+======================================================================
+CONSTANT-ALL-NOMINAL FLOOR (reference)
+  Predict everything nominal: F1=0.0000  P=0.0000  R=0.0000
+
+======================================================================
+SUMMARY TABLE — All 7 Detectors
+  Model                            Threshold        P        R       F1     TP     FP     TN     FN
+  --------------------------------------------------------------------------------------------
+  Isolation Forest                  0.201592   0.1111   0.0088   0.0164      1      8    408    112
+  PCA Reconstruction                0.030605   0.2857   0.0354   0.0630      4     10    406    109
+  Trivial Detector                  3.410388   0.1111   0.0088   0.0164      1      8    408    112
+  1-D Autoencoder                   0.000581   0.6429   0.0796   0.1417      9      5    411    104
+  2-D Spectrogram Autoencoder       0.000355   0.8889   0.0708   0.1311      8      1    415    105
+  Attention Autoencoder             0.010338   0.2500   0.0265   0.0480      3      9    407    110
+  Fusion (1D+2D)                    3.977751   0.8000   0.1062   0.1875     12      3    413    101
+  All-nominal floor                      N/A   0.0000   0.0000   0.0000      0      0    416    113
+
+Thresholds were loaded (not recomputed) — locked from validation evidence.
+No test labels or test scores were used for any threshold choice.
