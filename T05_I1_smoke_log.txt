@@ -2,12 +2,12 @@
 ============================================================
   Loading data
 ============================================================
-  ✓  data_loading  |  samples=110  |  1.02s
+  ✓  data_loading  |  samples=110  |  1.00s
 
 ============================================================
   Non-DL Baselines
 ============================================================
-  ✓  isolation_forest  |  samples=60  |  0.04s
+  ✓  isolation_forest  |  samples=60  |  0.05s
   ✓  pca_reconstruction  |  samples=60  |  0.00s
   ✓  trivial_detector  |  samples=60  |  0.00s
 
@@ -15,7 +15,7 @@
   1-D Convolutional Autoencoder
 ============================================================
   Params: 6,353
-  ✓  1d_conv_autoencoder  |  samples=60  |  0.17s
+  ✓  1d_conv_autoencoder  |  samples=60  |  0.20s
 
 ============================================================
   2-D Spectrogram Autoencoder
@@ -28,16 +28,16 @@
   Temporal Attention Autoencoder (+ ablation)
 ============================================================
   Attention params: 6,370  (base=6,353, diff=17)
-  ✓  attention_autoencoder  |  samples=60  |  0.11s
+  ✓  attention_autoencoder  |  samples=60  |  0.12s
   Ablation: no-attention 1-D AE already run above (run R05, val_mse=0.000082)
-  ✓  attention_ablation_comparison  |  samples=60  |  0.11s
+  ✓  attention_ablation_comparison  |  samples=60  |  0.12s
 
 ============================================================
   Fusion (1D + 2D, w=0.5)
 ============================================================
   Fusion threshold (99th pctile dev): 0.9352
   NOTE: test metric NOT computed (smoke test — no test scoring)
-  ✓  fusion_1d_2d  |  samples=50  |  0.02s
+  ✓  fusion_1d_2d  |  samples=50  |  0.03s
 
 ============================================================
   Core Experiment 1 preliminary — OPSSAT-AD (dev/val only)
