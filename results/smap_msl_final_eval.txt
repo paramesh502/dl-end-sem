@@ -1,0 +1,177 @@
+=================================================================
+SMAP/MSL Final Test Evaluation — LOCKED THRESHOLDS
+Team 05, Card I1
+Run: 2026-11-15 18:55:51
+=================================================================
+
+Neural thresholds LOCKED (from smap_msl_results.txt — NOT recomputed):
+  P-1: 1.995969
+  C-1: 0.513500
+
+Scoring protocol: covering-window mean (corrected Annex D6, 2026-11-14).
+  Each test point scored by mean squared reconstruction error at that point
+  averaged over all windows covering it.
+
+[PRIMARY] = unadjusted point F1 (standard sklearn classification_report)
+[AUDIT ONLY] = point-adjusted F1 (not used for tuning or selection)
+
+
+=================================================================
+  STREAM: P-1
+=================================================================
+  Test length          : 8505
+  Anomalous points     : 748
+  Anomaly intervals    : [(2149, 2349), (4536, 4844), (3539, 3779)]
+
+  --- Neural Autoencoder (R11/R12) ---
+  Locked threshold (P99 cal, NOT recomputed): 1.995969
+  Test alarms: 83/8505 = 0.98%
+
+  [PRIMARY] Unadjusted point precision/recall/F1:
+                  precision    recall  f1-score   support
+    
+               0     0.9120    0.9902    0.9495      7757
+               1     0.0843    0.0094    0.0168       748
+    
+        accuracy                         0.9039      8505
+       macro avg     0.4982    0.4998    0.4832      8505
+    weighted avg     0.8392    0.9039    0.8675      8505
+
+  [AUDIT ONLY — not used for tuning] Point-adjusted F1:
+    Precision=0.9078  Recall=1.0000  F1=0.9517
+
+  --- Isolation Forest (n_estimators=100, random_state=22) ---
+  Calibrated threshold (P99 cal covering-window mean): 0.512707
+  Test alarms: 627/8505 = 7.37%
+
+  [PRIMARY] Unadjusted point precision/recall/F1:
+                  precision    recall  f1-score   support
+    
+               0     0.9051    0.9192    0.9121      7757
+               1     0.0000    0.0000    0.0000       748
+    
+        accuracy                         0.8383      8505
+       macro avg     0.4525    0.4596    0.4560      8505
+    weighted avg     0.8255    0.8383    0.8318      8505
+
+  [AUDIT ONLY — not used for tuning] Point-adjusted F1:
+    Precision=0.0000  Recall=0.0000  F1=0.0000
+
+  --- PCA Reconstruction (n_components=4) ---
+  Calibrated threshold (P99 cal covering-window mean): 1.198798
+  Test alarms: 0/8505 = 0.00%
+
+  [PRIMARY] Unadjusted point precision/recall/F1:
+                  precision    recall  f1-score   support
+    
+               0     0.9121    1.0000    0.9540      7757
+               1     0.0000    0.0000    0.0000       748
+    
+        accuracy                         0.9121      8505
+       macro avg     0.4560    0.5000    0.4770      8505
+    weighted avg     0.8318    0.9121    0.8701      8505
+
+  [AUDIT ONLY — not used for tuning] Point-adjusted F1:
+    Precision=0.0000  Recall=0.0000  F1=0.0000
+
+  --- Trivial Detector (|z-score of window mean|) ---
+  Calibrated threshold (P99 cal covering-window mean): 0.082066
+  Test alarms: 4500/8505 = 52.91%
+
+  [PRIMARY] Unadjusted point precision/recall/F1:
+                  precision    recall  f1-score   support
+    
+               0     0.9895    0.5109    0.6739      7757
+               1     0.1569    0.9439    0.2691       748
+    
+        accuracy                         0.5490      8505
+       macro avg     0.5732    0.7274    0.4715      8505
+    weighted avg     0.9163    0.5490    0.6383      8505
+
+  [AUDIT ONLY — not used for tuning] Point-adjusted F1:
+    Precision=0.1647  Recall=1.0000  F1=0.2828
+
+=================================================================
+  STREAM: C-1
+=================================================================
+  Test length          : 2264
+  Anomalous points     : 310
+  Anomaly intervals    : [(550, 750), (2100, 2210)]
+
+  --- Neural Autoencoder (R11/R12) ---
+  Locked threshold (P99 cal, NOT recomputed): 0.513500
+  Test alarms: 111/2264 = 4.90%
+
+  [PRIMARY] Unadjusted point precision/recall/F1:
+                  precision    recall  f1-score   support
+    
+               0     0.8825    0.9724    0.9252      1954
+               1     0.5135    0.1839    0.2708       310
+    
+        accuracy                         0.8644      2264
+       macro avg     0.6980    0.5781    0.5980      2264
+    weighted avg     0.8320    0.8644    0.8356      2264
+
+  [AUDIT ONLY — not used for tuning] Point-adjusted F1:
+    Precision=0.8516  Recall=1.0000  F1=0.9199
+
+  --- Isolation Forest (n_estimators=100, random_state=22) ---
+  Calibrated threshold (P99 cal covering-window mean): 0.515559
+  Test alarms: 913/2264 = 40.33%
+
+  [PRIMARY] Unadjusted point precision/recall/F1:
+                  precision    recall  f1-score   support
+    
+               0     0.9186    0.6351    0.7510      1954
+               1     0.2191    0.6452    0.3271       310
+    
+        accuracy                         0.6365      2264
+       macro avg     0.5688    0.6401    0.5390      2264
+    weighted avg     0.8228    0.6365    0.6929      2264
+
+  [AUDIT ONLY — not used for tuning] Point-adjusted F1:
+    Precision=0.2191  Recall=0.6452  F1=0.3271
+
+  --- PCA Reconstruction (n_components=4) ---
+  Calibrated threshold (P99 cal covering-window mean): 0.479368
+  Test alarms: 1031/2264 = 45.54%
+
+  [PRIMARY] Unadjusted point precision/recall/F1:
+                  precision    recall  f1-score   support
+    
+               0     0.9157    0.5778    0.7085      1954
+               1     0.1998    0.6645    0.3072       310
+    
+        accuracy                         0.5897      2264
+       macro avg     0.5577    0.6212    0.5079      2264
+    weighted avg     0.8176    0.5897    0.6536      2264
+
+  [AUDIT ONLY — not used for tuning] Point-adjusted F1:
+    Precision=0.2731  Recall=1.0000  F1=0.4291
+
+  --- Trivial Detector (|z-score of window mean|) ---
+  Calibrated threshold (P99 cal covering-window mean): 0.356084
+  Test alarms: 1390/2264 = 61.40%
+
+  [PRIMARY] Unadjusted point precision/recall/F1:
+                  precision    recall  f1-score   support
+    
+               0     0.8741    0.3910    0.5403      1954
+               1     0.1439    0.6452    0.2353       310
+    
+        accuracy                         0.4258      2264
+       macro avg     0.5090    0.5181    0.3878      2264
+    weighted avg     0.7742    0.4258    0.4985      2264
+
+  [AUDIT ONLY — not used for tuning] Point-adjusted F1:
+    Precision=0.1439  Recall=0.6452  F1=0.2353
+
+=================================================================
+SUMMARY — Unadjusted F1 (PRIMARY)
+=================================================================
+  Stream      Neural   IsoForest       PCA   Trivial
+  ------------------------------------------------
+  P-1         0.0168      0.0000    0.0000    0.2691
+  C-1         0.2708      0.3271    0.3072    0.2353
+
+All F1 scores are finite. Assertion PASSED.
