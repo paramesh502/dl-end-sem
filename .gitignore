@@ -25,3 +25,11 @@ results/*.pt
 # Editor
 .vscode/
 *.swp
+
+# Student-internal files — not part of academic submission
+STUDY_GUIDE.md
+.agents/
+documentss/
+T05_I1_repo_checkpoint.zip
+22AIE304_Checkpoint_Template.docx
+22AIE304_runlog_template.csv
