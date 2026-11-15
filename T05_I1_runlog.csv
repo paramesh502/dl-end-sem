@@ -11,3 +11,10 @@ R09_superseded,2026-10-12,384bca9,1d_conv_autoencoder,smap_p1_nominal_only_wrong
 R10_superseded,2026-10-12,384bca9,1d_conv_autoencoder,msl_c1_nominal_only_wrong_cal,22,23,30,690,30_epochs,0.36,not_measured,not_measured,1,0,6353,val_cal_reconstruction_mse,0.089802,30,yes
 R11,2026-11-14,current,1d_conv_autoencoder,smap_p1_nominal_only_corrected_cal,22,32,30,960,30_epochs,2.59,not_measured,not_measured,1,0,6353,val_cal_mean_covering_windows,0.353130,30,no
 R12,2026-11-14,current,1d_conv_autoencoder,msl_c1_nominal_only_corrected_cal,22,23,30,690,30_epochs,1.38,not_measured,not_measured,1,0,6353,val_cal_mean_covering_windows,0.067453,30,no
+R13,2026-11-15,e8774a8,classical_baselines_opssat,opssat_final_test_eval_locked_thresholds,22,1019,1,1,final_eval_locked_thresholds,not_measured,not_measured,not_measured,1,0,0,dev_alarm_rate_pct,1.18,1,yes
+R14,2026-11-15,e8774a8,1d_conv_autoencoder,opssat_final_test_eval_locked_threshold_0.000581,22,1019,0,0,final_eval_locked_thresholds,not_measured,not_measured,not_measured,1,0,6353,dev_alarm_rate_pct,1.18,0,yes
+R15,2026-11-15,e8774a8,2d_spectrogram_autoencoder,opssat_final_test_eval_locked_threshold_0.000355,22,1019,0,0,final_eval_locked_thresholds,not_measured,not_measured,not_measured,1,0,18833,dev_alarm_rate_pct,1.18,0,yes
+R16,2026-11-15,e8774a8,attention_autoencoder,opssat_final_test_eval_locked_threshold_0.010338,22,1019,0,0,final_eval_locked_thresholds,not_measured,not_measured,not_measured,1,0,6370,dev_alarm_rate_pct,1.18,0,yes
+R17,2026-11-15,e8774a8,fusion_1d_2d,opssat_final_test_eval_locked_threshold_3.977751_w0.5,22,1019,0,0,final_eval_locked_thresholds,not_measured,not_measured,not_measured,1,0,0,dev_alarm_rate_pct,1.18,0,yes
+R18,2026-11-15,e8774a8,1d_conv_autoencoder_smap_p1,smap_p1_final_test_eval_locked_threshold_1.995969,22,32,30,960,final_eval_locked_thresholds,not_measured,not_measured,not_measured,1,0,6353,val_cal_mean_covering_windows,0.353130,30,yes
+R19,2026-11-15,e8774a8,1d_conv_autoencoder_msl_c1,msl_c1_final_test_eval_locked_threshold_0.513500,22,23,30,690,final_eval_locked_thresholds,not_measured,not_measured,not_measured,1,0,6353,val_cal_mean_covering_windows,0.067453,30,yes
